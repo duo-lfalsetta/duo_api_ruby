@@ -81,6 +81,49 @@ class DuoApi
     end
   end
 
+  def get(path, params = {}, additional_headers = nil)
+    request('GET', path, params, additional_headers)
+  end
+  
+  def get_all(path, params = {}, additional_headers = nil)
+    params[:limit] = 1000
+    params[:offset] = 0
+    
+    all_resp_data = []
+    prev_resp_data_count = 0
+    prev_offset = 0
+    while params[:offset]
+      resp = request('GET', path, params, additional_headers)
+      return resp if not resp.kind_of? Net::HTTPSuccess
+      
+      resp_body = JSON.parse(resp.body)
+      all_resp_data.concat(resp_body['response'])
+      
+      params[:offset] = resp_body['metadata']['next_offset']
+      
+      raise 'Paginated response offset error' if params[:offset] and not params[:offset] > prev_offset
+      raise 'Paginated response count error' if not all_resp_data.count > prev_resp_data_count
+      
+      prev_resp_data_count = all_resp_data.count
+      prev_offset = params[:offset]
+    end
+    resp_body['response'] = all_resp_data
+    resp.body = JSON.generate(resp_body)
+    resp
+  end
+  
+  def post(path, params = {}, additional_headers = nil)
+    request('POST', path, params, additional_headers)
+  end
+  
+  def put(path, params = {}, additional_headers = nil)
+    request('PUT', path, params, additional_headers)
+  end
+  
+  def delete(path, params = {}, additional_headers = nil)
+    request('DELETE', path, params, additional_headers)
+  end
+
   private
 
   def encode_key_val(k, v)
