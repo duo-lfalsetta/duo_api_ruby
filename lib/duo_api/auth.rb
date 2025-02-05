@@ -1,4 +1,5 @@
 require_relative 'client'
+require_relative 'util'
 
 class DuoApi
   class Auth < DuoApi

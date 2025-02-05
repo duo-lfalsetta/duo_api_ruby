@@ -1,4 +1,5 @@
 require_relative 'duo_api/client'
+require_relative 'duo_api/util'
 
 require_relative 'duo_api/accounts'
 require_relative 'duo_api/admin'
