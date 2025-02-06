@@ -1,3 +1,4 @@
+require 'base64'
 require 'erb'
 require 'json'
 require 'openssl'
@@ -61,8 +62,6 @@ class DuoApi
     if params_go_in_body
       request['Content-Type'] = 'application/json'
       request.body = body
-    else
-      request['Content-Type'] = 'application/x-www-form-urlencoded'
     end
 
     Net::HTTP.start(
@@ -94,7 +93,7 @@ class DuoApi
 
   def canon_params(params_hash = nil)
     return '' if params_hash.nil?
-    params_hash.sort.map do |k, v|
+    params_hash.transform_keys(&:to_s).sort.map do |k, v|
       # when it is an array, we want to add that as another param
       # eg. next_offset = ['1547486297000', '5bea1c1e-612c-4f1d-b310-75fd31385b15']
       if v.is_a?(Array)

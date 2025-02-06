@@ -3,55 +3,105 @@ require_relative 'client'
 class DuoApi
 
   def get(path, params = {}, additional_headers = nil)
-    resp = request('GET', path, serialized_params_for_uri(params), additional_headers)
+    resp = request('GET', path, params, additional_headers)
     raise_http_errors(resp)
+    raise_content_type_errors(resp['content-type'], 'application/json')
+
     JSON.parse(resp.body)
   end
 
   def get_all(path, params = {}, additional_headers = nil)
     warn 'Ignoring supplied offset parameter for get_all method' if params[:offset]
-    params[:limit] ||= 1000
-    params[:offset] = 0
+    params.delete(:offset)
+    params.delete(:next_offset)
 
-    all_resp_data = []
-    prev_resp_data_count = 0
+    metadata_path = ['metadata']
+    results_path = ['response']
+    all_results = []
+    prev_results_count = 0
+    next_offset = 0
     prev_offset = 0
-    while params[:offset]
-      resp = request('GET', path, serialized_params_for_uri(params), additional_headers)
+    resp_body = {}
+    loop do
+      resp = request('GET', path, params, additional_headers)
       raise_http_errors(resp)
+      raise_content_type_errors(resp['content-type'], 'application/json')
+
       resp_body = JSON.parse(resp.body)
-      all_resp_data.concat(resp_body['response'])
-      if resp_body['metadata']
-        params[:offset] = resp_body['metadata']['next_offset']
-      else
-        params[:offset] = nil
+      if resp_body['response'].is_a?(Hash) and results_path.count == 1
+        array_keys = resp_body['response'].select{|k,v| v.is_a?(Array)}.keys
+        raise 'Unable to determine path of results array' if array_keys.count != 1
+        results_path.append(array_keys.first)
+      end
+      if not resp_body['metadata'] and resp_body['response'].is_a?(Hash)
+        metadata_path = ['response', 'metadata']
       end
 
-      raise 'Paginated response offset error' if params[:offset] and not params[:offset] > prev_offset
-      raise 'Paginated response count error' if not all_resp_data.count > prev_resp_data_count
+      all_results.concat(resp_body.dig(*results_path))
+      resp_metadata = resp_body.dig(*metadata_path)
+      if resp_metadata and resp_metadata['next_offset']
+        next_offset = resp_metadata['next_offset']
+        if next_offset.is_a?(Array) or next_offset.is_a?(String)
+          next_offset = next_offset.join(',') if next_offset.is_a?(Array)
+          raise 'Paginated response offset error' if next_offset == prev_offset
+          params[:next_offset] = next_offset
+        else
+          raise 'Paginated response offset error' if not next_offset > prev_offset
+          params[:offset] = next_offset
+        end
+      else
+        next_offset = nil
+        params.delete(:offset)
+        params.delete(:next_offset)
+      end
 
-      prev_resp_data_count = all_resp_data.count
-      prev_offset = params[:offset]
+      break if not next_offset or
+        not all_results.count > prev_results_count or
+        not all_results.count < resp_metadata['total_objects']
+
+      prev_results_count = all_results.count
+      prev_offset = next_offset
     end
-    resp_body['response'] = all_resp_data
+
+    if results_path.count > 1
+      results_base_hash = resp_body.dig(*results_path[..-2])
+    else
+      results_base_hash = resp_body
+    end
+    results_array_key = results_path.last
+    results_base_hash[results_array_key] = all_results
     resp_body
+  end
+
+  def get_image(path, params = {}, additional_headers = nil)
+    resp = request('GET', path, params, additional_headers)
+    raise_http_errors(resp)
+    raise_content_type_errors(resp['content-type'], /^image\//)
+
+    resp.body
   end
 
   def post(path, params = {}, additional_headers = nil)
     resp = request('POST', path, params, additional_headers)
     raise_http_errors(resp)
+    raise_content_type_errors(resp['content-type'], 'application/json')
+
     JSON.parse(resp.body)
   end
 
   def put(path, params = {}, additional_headers = nil)
     resp = request('PUT', path, params, additional_headers)
     raise_http_errors(resp)
+    raise_content_type_errors(resp['content-type'], 'application/json')
+
     JSON.parse(resp.body)
   end
 
   def delete(path, params = {}, additional_headers = nil)
     resp = request('DELETE', path, params, additional_headers)
     raise_http_errors(resp)
+    raise_content_type_errors(resp['content-type'], 'application/json')
+
     JSON.parse(resp.body)
   end
 
@@ -69,11 +119,22 @@ class DuoApi
     end
   end
 
-  def serialized_params_for_uri(params)
-    params.keys.each do |k|
-      params[k] = JSON.generate(params[k]) if params[k].is_a?(Array)
+  def raise_content_type_errors(received, allowed)
+    valid = false
+    if allowed.is_a?(Regexp)
+      valid = true if received =~ allowed
+    else
+      valid = true if received == allowed
     end
-    params
+    raise "Invalid Content-Type #{received}, expected #{expected}" if not valid
   end
-  
+
+  def is_base64?(value)
+    begin
+      value.is_a?(String) and Base64.strict_encode64(Base64.decode64(value)) == value
+    rescue
+      false
+    end
+  end
+
 end
