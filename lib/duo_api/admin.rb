@@ -699,6 +699,7 @@ class DuoApi
     def get_trust_monitor_events(mintime:, maxtime:, **optional_params)
       # optional_params: formatter, type
       params = optional_params.merge({mintime: mintime, maxtime: maxtime})
+      params[:limit] = 200 if not params[:limit] or params[:limit].to_i > 200
       get_all('/admin/v1/trust_monitor/events', params)['response']['events']
     end
 

@@ -14,6 +14,7 @@ class DuoApi
     warn 'Ignoring supplied offset parameter for get_all method' if params[:offset]
     params.delete(:offset)
     params.delete(:next_offset)
+    params[:limit] ||= 1000
 
     metadata_path = ['metadata']
     results_path = ['response']
@@ -21,24 +22,24 @@ class DuoApi
     prev_results_count = 0
     next_offset = 0
     prev_offset = 0
-    resp_body = {}
+    resp_body_hash = {}
     loop do
       resp = request('GET', path, params, additional_headers)
       raise_http_errors(resp)
       raise_content_type_errors(resp['content-type'], 'application/json')
 
-      resp_body = JSON.parse(resp.body)
-      if resp_body['response'].is_a?(Hash) and results_path.count == 1
-        array_keys = resp_body['response'].select{|k,v| v.is_a?(Array)}.keys
+      resp_body_hash = JSON.parse(resp.body)
+      if resp_body_hash['response'].is_a?(Hash) and results_path.count == 1
+        array_keys = resp_body_hash['response'].select{|k,v| v.is_a?(Array)}.keys
         raise 'Unable to determine path of results array' if array_keys.count != 1
         results_path.append(array_keys.first)
       end
-      if not resp_body['metadata'] and resp_body['response'].is_a?(Hash)
+      if not resp_body_hash['metadata'] and resp_body_hash['response'].is_a?(Hash)
         metadata_path = ['response', 'metadata']
       end
 
-      all_results.concat(resp_body.dig(*results_path))
-      resp_metadata = resp_body.dig(*metadata_path)
+      all_results.concat(resp_body_hash.dig(*results_path))
+      resp_metadata = resp_body_hash.dig(*metadata_path)
       if resp_metadata and resp_metadata['next_offset']
         next_offset = resp_metadata['next_offset']
         if next_offset.is_a?(Array) or next_offset.is_a?(String)
@@ -55,22 +56,21 @@ class DuoApi
         params.delete(:next_offset)
       end
 
-      break if not next_offset or
-        not all_results.count > prev_results_count or
-        not all_results.count < resp_metadata['total_objects']
+      break if not next_offset or 
+        not all_results.count > prev_results_count
 
       prev_results_count = all_results.count
       prev_offset = next_offset
     end
-
+    
     if results_path.count > 1
-      results_base_hash = resp_body.dig(*results_path[..-2])
+      results_base_hash = resp_body_hash.dig(*results_path[..-2])
     else
-      results_base_hash = resp_body
+      results_base_hash = resp_body_hash
     end
     results_array_key = results_path.last
     results_base_hash[results_array_key] = all_results
-    resp_body
+    resp_body_hash
   end
 
   def get_image(path, params = {}, additional_headers = nil)
@@ -79,7 +79,7 @@ class DuoApi
     raise_content_type_errors(resp['content-type'], /^image\//)
 
     resp.body
-  end
+  end  
 
   def post(path, params = {}, additional_headers = nil)
     resp = request('POST', path, params, additional_headers)
@@ -105,6 +105,7 @@ class DuoApi
     JSON.parse(resp.body)
   end
 
+
   private
 
   def raise_http_errors(resp)
@@ -126,7 +127,7 @@ class DuoApi
     else
       valid = true if received == allowed
     end
-    raise "Invalid Content-Type #{received}, expected #{expected}" if not valid
+    raise "Invalid Content-Type #{received}, should match #{allowed}" if not valid
   end
 
   def is_base64?(value)

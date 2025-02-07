@@ -82,6 +82,7 @@ class DuoApi
     end
   end
 
+
   private
 
   def encode_key_val(k, v)
