@@ -28,6 +28,7 @@ class DuoApi
     @ikey = ikey
     @skey = skey
     @host = host
+    @proxy_str = proxy
     if proxy.nil?
       @proxy = []
     else

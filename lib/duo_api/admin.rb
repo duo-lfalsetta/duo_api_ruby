@@ -337,8 +337,8 @@ class DuoApi
     ###
     # Integrations
     #
-    def get_integrations()
-      get_all('/admin/v2/integrations')['response']
+    def get_integrations(**optional_params)
+      get_all('/admin/v2/integrations', optional_params)['response']
     end
 
     def create_integration(name:, type:, **optional_params)
