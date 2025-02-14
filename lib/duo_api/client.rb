@@ -41,7 +41,7 @@ class DuoApi
       ]
     end
     @ca_file = ca_file ||
-      File.join(File.dirname(__FILE__), '..', 'ca_certs.pem')
+      File.join(File.dirname(__FILE__), '..', '..', 'ca_certs.pem')
     @default_params = default_params.transform_keys(&:to_sym)
   end
 

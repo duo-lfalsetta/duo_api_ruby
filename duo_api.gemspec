@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
     'lib/duo_api/util.rb',
     'ca_certs.pem'
   ]
+  s.add_dependency 'base64', '~> 0.2.0'
   s.add_development_dependency 'rake', '~> 12.0'
   s.add_development_dependency 'rubocop', '~> 0.49.0'
   s.add_development_dependency 'test-unit', '~> 3.2'
