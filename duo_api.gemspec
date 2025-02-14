@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'duo_api'
-  s.version     = '1.4.0'
+  s.version     = '1.5.0'
   s.summary     = 'Duo API Ruby'
   s.description = 'A Ruby implementation of the Duo API.'
   s.email       = 'support@duo.com'
@@ -9,6 +9,11 @@ Gem::Specification.new do |s|
   s.authors     = ['Duo Security']
   s.files       = [
     'lib/duo_api.rb',
+    'lib/duo_api/accounts.rb',
+    'lib/duo_api/admin.rb',
+    'lib/duo_api/auth.rb',
+    'lib/duo_api/client.rb',
+    'lib/duo_api/util.rb',
     'ca_certs.pem'
   ]
   s.add_development_dependency 'rake', '~> 12.0'
