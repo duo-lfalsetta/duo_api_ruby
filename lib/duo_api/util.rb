@@ -11,6 +11,7 @@ class DuoApi
   end
 
   def get_all(path, params = {}, additional_headers = nil)
+    params.transform_keys!(&:to_sym)
     warn 'Ignoring supplied offset parameter for get_all method' if params[:offset]
     params.delete(:offset)
     params.delete(:next_offset)

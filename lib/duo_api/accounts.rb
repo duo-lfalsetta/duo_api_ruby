@@ -21,36 +21,44 @@ class DuoApi
       post('/accounts/v1/account/delete')['response']
     end
 
-    ###
-    # Admin API Wrapper
-    #
-    def admin_api_call(account_id:, api_hostname:, api_method:, **admin_method_params)
-      DuoApi::Admin.new(@ikey, @skey, api_hostname, @proxy_str, ca_file: @ca_file).send(
-        api_method, account_id: account_id, **admin_method_params)
-    end
-
 
     ###
-    # Additional Admin API Methods
+    # Child Account Admin API Wrapper
     #
-    def get_edition(account_id:)
-      params = {account_id: account_id}
-      get('/admin/v1/billing/edition', params)['response']
+    def admin_api(child_account_id:)
+      child_account = get_child_accounts().select{|a| a['account_id'] == child_account_id}.first
+      raise "Child account #{child_account_id} not found" unless child_account
+      DuoApi::Admin.new(@ikey, @skey, child_account['api_hostname'], @proxy_str, ca_file: @ca_file,
+                        default_params: {account_id: child_account_id})
     end
 
-    def set_edition(account_id:, edition:)
-      params = {account_id: account_id, edition: edition}
-      post('/admin/v1/billing/edition', params)['response']
-    end
 
-    def get_telephony_credits(account_id:)
-      params = {account_id: account_id}
-      get('/admin/v1/billing/telephony_credits', params)['response']
-    end
+    ###
+    # Additional Child Account Admin API Methods
+    #
+    # Note:
+    #   - These are enabled by support request only
+    #   - They can only be called by the admin_api method of an instance of DuoApi::Accounts
+    #   - account_id is required for each of these, but it is provided by the admin_api method above
+    #
+    class DuoApi::Admin
+      def get_edition()
+        get('/admin/v1/billing/edition')['response']
+      end
 
-    def set_telephony_credits(account_id:, credits:)
-      params = {account_id: account_id, credits: credits}
-      post('/admin/v1/billing/telephony_credits', params)['response']
+      def set_edition(edition:)
+        params = {edition: edition}
+        post('/admin/v1/billing/edition', params)['response']
+      end
+
+      def get_telephony_credits()
+        get('/admin/v1/billing/telephony_credits')['response']
+      end
+
+      def set_telephony_credits(credits:)
+        params = {credits: credits}
+        post('/admin/v1/billing/telephony_credits', params)['response']
+      end
     end
 
   end

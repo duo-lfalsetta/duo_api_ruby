@@ -24,7 +24,7 @@ class DuoApi
   BACKOFF_FACTOR = 2
   RATE_LIMITED_RESP_CODE = '429'
 
-  def initialize(ikey, skey, host, proxy = nil, ca_file: nil)
+  def initialize(ikey, skey, host, proxy = nil, ca_file: nil, default_params: {})
     @ikey = ikey
     @skey = skey
     @host = host
@@ -42,9 +42,11 @@ class DuoApi
     end
     @ca_file = ca_file ||
       File.join(File.dirname(__FILE__), '..', 'ca_certs.pem')
+    @default_params = default_params.transform_keys(&:to_sym)
   end
 
   def request(method, path, params = {}, additional_headers = nil)
+    params = @default_params.merge(params.transform_keys(&:to_sym))
     params_go_in_body = %w[POST PUT PATCH].include?(method)
     if params_go_in_body
       body = canon_json(params)
@@ -82,7 +84,6 @@ class DuoApi
       end
     end
   end
-
 
   private
 
