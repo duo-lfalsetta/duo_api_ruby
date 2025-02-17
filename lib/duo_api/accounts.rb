@@ -36,8 +36,8 @@ class DuoApi
       #
       # Note:
       #   - These are enabled by support request only
-      #   - They can only be called by the admin_api method of an instance of DuoApi::Accounts
-      #   - account_id is required for each of these, but it is provided by the admin_api method above
+      #   - They can only be called by the DuoApi::Admin instance returned by this wrapper method
+      #   - account_id is required for each of these, but it is provided by the client default_params
       #
       client.instance_eval do
         def get_edition()
