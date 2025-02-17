@@ -1,7 +1,8 @@
 require_relative 'client'
-require_relative 'util'
+require_relative 'helpers'
 
 require_relative 'admin'
+
 
 class DuoApi
   class Accounts < DuoApi

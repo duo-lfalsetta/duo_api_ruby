@@ -1,5 +1,6 @@
 require_relative 'client'
 
+
 class DuoApi
 
   def get(path, params = {}, additional_headers = nil)
