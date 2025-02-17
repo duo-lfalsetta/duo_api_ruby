@@ -10,16 +10,19 @@ class DuoApi
     JSON.parse(resp.body)
   end
 
-  def get_all(path, params = {}, additional_headers = nil)
+  def get_all(path, params = {}, additional_headers = nil, data_array_path: nil, metadata_path: nil)
+    data_array_path = (data_array_path.is_a?(Array) and data_array_path.count >= 1) ?
+      data_array_path : ['response']
+    metadata_path = (metadata_path.is_a?(Array) and metadata_path.count >= 1) ?
+      metadata_path : ['metadata']
+
     params.transform_keys!(&:to_sym)
     warn 'Ignoring supplied offset parameter for get_all method' if params[:offset]
     params.delete(:offset)
     params.delete(:next_offset)
     params[:limit] ||= 1000
 
-    metadata_path = ['metadata']
-    results_path = ['response']
-    all_results = []
+    all_data = []
     prev_results_count = 0
     next_offset = 0
     prev_offset = 0
@@ -30,19 +33,17 @@ class DuoApi
       raise_content_type_errors(resp['content-type'], 'application/json')
 
       resp_body_hash = JSON.parse(resp.body)
-      if resp_body_hash['response'].is_a?(Hash) and results_path.count == 1
-        array_keys = resp_body_hash['response'].select{|k,v| v.is_a?(Array)}.keys
-        raise 'Unable to determine path of results array' if array_keys.count != 1
-        results_path.append(array_keys.first)
+      resp_data_array = resp_body_hash.dig(*data_array_path)
+      if not resp_data_array.is_a?(Array)
+        raise "Object at data_array_path #{JSON.generate(data_array_path)} is not an Array"
       end
-      if not resp_body_hash['metadata'] and resp_body_hash['response'].is_a?(Hash)
-        metadata_path = ['response', 'metadata']
-      end
+      all_data.concat(resp_data_array)
 
-      all_results.concat(resp_body_hash.dig(*results_path))
       resp_metadata = resp_body_hash.dig(*metadata_path)
-      if resp_metadata and resp_metadata['next_offset']
+      if resp_metadata.is_a?(Hash) and resp_metadata['next_offset']
         next_offset = resp_metadata['next_offset']
+        next_offset = next_offset.to_i if is_string_int?(next_offset)
+
         if next_offset.is_a?(Array) or next_offset.is_a?(String)
           next_offset = next_offset.join(',') if next_offset.is_a?(Array)
           raise 'Paginated response offset error' if next_offset == prev_offset
@@ -58,19 +59,19 @@ class DuoApi
       end
 
       break if not next_offset or 
-        not all_results.count > prev_results_count
+        not all_data.count > prev_results_count
 
-      prev_results_count = all_results.count
+      prev_results_count = all_data.count
       prev_offset = next_offset
     end
-    
-    if results_path.count > 1
-      results_base_hash = resp_body_hash.dig(*results_path[..-2])
+
+    if data_array_path.count > 1
+      data_array_parent_hash = resp_body_hash.dig(*data_array_path[..-2])
     else
-      results_base_hash = resp_body_hash
+      data_array_parent_hash = resp_body_hash
     end
-    results_array_key = results_path.last
-    results_base_hash[results_array_key] = all_results
+    data_array_key = data_array_path.last
+    data_array_parent_hash[data_array_key] = all_data
     resp_body_hash
   end
 
@@ -134,6 +135,14 @@ class DuoApi
   def is_base64?(value)
     begin
       value.is_a?(String) and Base64.strict_encode64(Base64.decode64(value)) == value
+    rescue
+      false
+    end
+  end
+
+  def is_string_int?(value)
+    begin
+      value.is_a?(String) and value.to_i.to_s == value
     rescue
       false
     end

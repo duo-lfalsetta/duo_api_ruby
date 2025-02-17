@@ -3,7 +3,7 @@ require_relative 'util'
 
 class DuoApi
   class Admin < DuoApi
-    
+
     ###
     # Users
     #
@@ -134,8 +134,8 @@ class DuoApi
       params = {push_id: push_id}
       get("/admin/v1/users/#{user_id}/verification_push_response", params)['response']
     end
-    
-    
+
+
     ###
     # Bulk Operations
     #
@@ -667,13 +667,19 @@ class DuoApi
       #
       #       more info: https://duo.com/docs/adminapi#authentication-logs
       params = optional_params.merge({mintime: mintime, maxtime: maxtime})
-      get_all('/admin/v2/logs/authentication', params)['response']['authlogs']
+      data_array_path = ['response', 'authlogs']
+      metadata_path = ['response', 'metadata']
+      get_all('/admin/v2/logs/authentication', params, data_array_path: data_array_path,
+              metadata_path: metadata_path).dig(*data_array_path)
     end
 
     def get_activity_logs(mintime:, maxtime:, **optional_params)
       # optional_params: sort
       params = optional_params.merge({mintime: mintime, maxtime: maxtime})
-      get_all('/admin/v2/logs/activity', params)['response']['items']
+      data_array_path = ['response', 'items']
+      metadata_path = ['response', 'metadata']
+      get_all('/admin/v2/logs/activity', params, data_array_path: data_array_path,
+              metadata_path: metadata_path).dig(*data_array_path)
     end
 
     def get_admin_logs(**optional_params)
@@ -684,7 +690,10 @@ class DuoApi
     def get_telephony_logs(mintime:, maxtime:, **optional_params)
       # optional_params: sort
       params = optional_params.merge({mintime: mintime, maxtime: maxtime})
-      get_all('/admin/v2/logs/telephony', params)['response']['items']
+      data_array_path = ['response', 'items']
+      metadata_path = ['response', 'metadata']
+      get_all('/admin/v2/logs/telephony', params, data_array_path: data_array_path,
+              metadata_path: metadata_path).dig(*data_array_path)
     end
 
     def get_offline_enrollment_logs(**optional_params)
@@ -700,7 +709,10 @@ class DuoApi
       # optional_params: formatter, type
       params = optional_params.merge({mintime: mintime, maxtime: maxtime})
       params[:limit] = 200 if not params[:limit] or params[:limit].to_i > 200
-      get_all('/admin/v1/trust_monitor/events', params)['response']['events']
+      data_array_path = ['response', 'events']
+      metadata_path = ['response', 'metadata']
+      get_all('/admin/v1/trust_monitor/events', params, data_array_path: data_array_path,
+              metadata_path: metadata_path).dig(*data_array_path)
     end
 
 
