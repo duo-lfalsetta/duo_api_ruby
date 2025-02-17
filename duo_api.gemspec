@@ -9,11 +9,11 @@ Gem::Specification.new do |s|
   s.authors     = ['Duo Security']
   s.files       = [
     'lib/duo_api.rb',
-    'lib/duo_api/accounts.rb',
-    'lib/duo_api/admin.rb',
-    'lib/duo_api/auth.rb',
     'lib/duo_api/client.rb',
-    'lib/duo_api/util.rb',
+    'lib/duo_api/helpers.rb',
+    'lib/duo_api/admin.rb',
+    'lib/duo_api/accounts.rb',
+    'lib/duo_api/auth.rb',
     'ca_certs.pem'
   ]
   s.add_dependency 'base64', '~> 0.2.0'
