@@ -583,7 +583,7 @@ class DuoApi
 
     def sync_admin(directory_key:, email:)
       params = {email: email}
-      post("/admin/v1/admins/directorysync/#{directory_key}/syncadmin")['response']
+      post("/admin/v1/admins/directorysync/#{directory_key}/syncadmin", params)['response']
     end
 
     def get_admin_password_mgmt_statuses()
@@ -627,7 +627,7 @@ class DuoApi
       # optional_params: restrict_by_integrations, admins, groups, integrations
       params = optional_params.merge({name: name, description: description,
                                       restrict_by_groups: restrict_by_groups})
-      post('/admin/v1/administrative_units')['response']
+      post('/admin/v1/administrative_units', params)['response']
     end
 
     def update_administrative_unit(admin_unit_id:, **optional_params)
