@@ -46,8 +46,12 @@ class DuoApi
     @default_params = default_params.transform_keys(&:to_sym)
   end
 
+  # Basic authenticated request returning raw Net::HTTPResponse object
   def request(method, path, params = {}, additional_headers = nil)
+    # Merge default params with provided params
     params = @default_params.merge(params.transform_keys(&:to_sym))
+
+    # Determine if params should be in a JSON request body
     params_go_in_body = %w[POST PUT PATCH].include?(method)
     if params_go_in_body
       body = canon_json(params)
@@ -56,18 +60,25 @@ class DuoApi
       body = ''
     end
 
+    # Construct the request URI
     uri = request_uri(path, params)
+
+    # Sign the request
     current_date, signed = sign(method, uri.host, path, params, body, additional_headers)
 
+    # Create the HTTP request object
     request = Net::HTTP.const_get(method.capitalize).new uri.to_s
     request.basic_auth(@ikey, signed)
     request['Date'] = current_date
     request['User-Agent'] = "duo_api_ruby/#{VERSION}"
+
+    # Set Content-Type and request body for JSON requests
     if params_go_in_body
       request['Content-Type'] = 'application/json'
       request.body = body
     end
 
+    # Start the HTTP session
     Net::HTTP.start(
       uri.host, uri.port, *@proxy,
       use_ssl: true, ca_file: @ca_file,
@@ -76,6 +87,8 @@ class DuoApi
       wait_secs = INITIAL_BACKOFF_WAIT_SECS
       while true do
         resp = http.request(request)
+
+        # Check if the response is rate-limited and handle backoff
         if resp.code != RATE_LIMITED_RESP_CODE or wait_secs > MAX_BACKOFF_WAIT_SECS
           return resp
         end
@@ -86,33 +99,40 @@ class DuoApi
     end
   end
 
+
   private
 
+  # Encode a key-value pair for a URL
   def encode_key_val(k, v)
-    # encode the key and the value for a url
     key = ERB::Util.url_encode(k.to_s)
     value = ERB::Util.url_encode(v.to_s)
     key + '=' + value
   end
 
+  # Build a canonical parameter string
   def canon_params(params_hash = nil)
     return '' if params_hash.nil?
     params_hash.transform_keys(&:to_s).sort.map do |k, v|
-      # when it is an array, we want to add that as another param
-      # eg. next_offset = ['1547486297000', '5bea1c1e-612c-4f1d-b310-75fd31385b15']
+      # When value an array, repeat key for each unique value in sorted array
       if v.is_a?(Array)
-        encode_key_val(k, v[0]) + '&' + encode_key_val(k, v[1])
+        if v.count > 0
+          v.sort.uniq.map{|vn| encode_key_val(k, vn)}.join('&')
+        else
+          encode_key_val(k, '')
+        end
       else
         encode_key_val(k, v)
       end
     end.join('&')
   end
 
+  # Generate a canonical JSON body
   def canon_json(params_hash = nil)
     return '' if params_hash.nil?
     JSON.generate(Hash[params_hash.sort])
   end
 
+  # Canonicalize additional headers for signing
   def canon_x_duo_headers(additional_headers)
     additional_headers ||= {}
 
@@ -134,6 +154,7 @@ class DuoApi
     OpenSSL::Digest::SHA512.hexdigest(canon)
   end
 
+  # Validate additional headers to ensure they meet requirements
   def validate_additional_header(header_name, value, added_headers)
     raise 'Not allowed "Null" character in header name' if header_name.include?("\x00")
     raise 'Not allowed "Null" character in header value' if value.include?("\x00")
@@ -141,12 +162,14 @@ class DuoApi
     raise "Duplicate header passed, header=#{header_name}" if added_headers.include?(header_name.downcase)
   end
 
+  # Construct the request URI
   def request_uri(path, params = nil)
     u = 'https://' + @host + path
     u += '?' + canon_params(params) unless params.nil?
     URI.parse(u)
   end
 
+  # Create a canonical string for signing requests
   def canonicalize(method, host, path, params, body = '', additional_headers = nil, options: {})
     # options[:date] being passed manually is specifically for tests
     date = options[:date] || Time.now.rfc2822()
@@ -162,6 +185,7 @@ class DuoApi
     [date, canon.join("\n")]
   end
 
+  # Sign the request with HMAC-SHA512
   def sign(method, host, path, params, body = '', additional_headers = nil, options: {})
     # options[:date] being passed manually is specifically for tests
     date, canon = canonicalize(method, host, path, params, body, additional_headers, options: options)

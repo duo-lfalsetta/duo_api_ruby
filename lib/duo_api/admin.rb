@@ -12,7 +12,7 @@ class DuoApi
       # optional_params: username, email, user_id_list, username_list
       optional_params.tap do |p|
         p[:user_id_list] = json_serialized_array(p[:user_id_list]) if p[:user_id_list]
-        p[:username_list] = json_serialized_array(p[:user_id_list]) if p[:user_id_list]
+        p[:username_list] = json_serialized_array(p[:username_list]) if p[:username_list]
       end
       get_all('/admin/v1/users', optional_params)['response']
     end
@@ -20,6 +20,9 @@ class DuoApi
     def create_user(username:, **optional_params)
       # optional_params: alias1, alias2, alias3, alias4, aliases, realname, email,
       #                  enable_auto_prompt, status, notes, firstname, lastname
+      optional_params.tap do |p|
+        p[:aliases] = serialized_aliases(p[:aliases]) if p[:aliases]
+      end
       params = optional_params.merge({username: username})
       post('/admin/v1/users', params)['response']
     end
@@ -49,6 +52,9 @@ class DuoApi
       # optional_params: alias1, alias2, alias3, alias4, aliases, realname, email,
       #                  enable_auto_prompt, status, notes, firstname, lastname,
       #                  username
+      optional_params.tap do |p|
+        p[:aliases] = serialized_aliases(p[:aliases]) if p[:aliases]
+      end
       post("/admin/v1/users/#{user_id}", optional_params)['response']
     end
 
@@ -822,15 +828,17 @@ class DuoApi
 
 
     private
-    ###
-    # Private Admin API Helpers
-    #
+
     def json_serialized_array(value)
       JSON.generate(value) if value.is_a?(Array)
     end
 
     def csv_serialized_array(value)
       value.join(',') if value.is_a?(Array)
+    end
+
+    def serialized_aliases(aliases)
+      aliases.map.with_index{|a,i| "alias#{i+1}=#{a}"}.join('&') if aliases.is_a?(Array)
     end
 
   end
