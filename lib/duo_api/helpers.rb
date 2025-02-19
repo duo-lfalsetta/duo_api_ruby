@@ -8,7 +8,8 @@ class DuoApi
   def get(path, params = {}, additional_headers = nil)
     resp = request('GET', path, params, additional_headers)
     raise_http_errors(resp)
-    raise_content_type_errors(resp['content-type'], 'application/json')
+    headers = resp.to_hash.transform_keys(&:downcase)
+    raise_content_type_errors(headers['content-type'], 'application/json')
 
     JSON.parse(resp.body)
   end
@@ -40,12 +41,14 @@ class DuoApi
     loop do
       resp = request('GET', path, params, additional_headers)
       raise_http_errors(resp)
-      raise_content_type_errors(resp['content-type'], 'application/json')
+      headers = resp.to_hash.transform_keys(&:downcase)
+      raise_content_type_errors(headers['content-type'], 'application/json')
 
       resp_body_hash = JSON.parse(resp.body)
       resp_data_array = resp_body_hash.dig(*data_array_path)
       if not resp_data_array.is_a?(Array)
-        raise "Object at data_array_path #{JSON.generate(data_array_path)} is not an Array"
+        raise(PaginationError,
+              "Object at data_array_path #{JSON.generate(data_array_path)} is not an Array")
       end
       all_data.concat(resp_data_array)
 
@@ -56,10 +59,10 @@ class DuoApi
 
         if next_offset.is_a?(Array) or next_offset.is_a?(String)
           next_offset = next_offset.join(',') if next_offset.is_a?(Array)
-          raise 'Paginated response offset error' if next_offset == prev_offset
+          raise(PaginationError, 'Paginated response offset error') if next_offset == prev_offset
           params[:next_offset] = next_offset
         else
-          raise 'Paginated response offset error' if not next_offset > prev_offset
+          raise(PaginationError, 'Paginated response offset error') if not next_offset > prev_offset
           params[:offset] = next_offset
         end
       else
@@ -68,7 +71,7 @@ class DuoApi
         params.delete(:next_offset)
       end
 
-      break if not next_offset or 
+      break if not next_offset or
         not all_data.count > prev_results_count
 
       prev_results_count = all_data.count
@@ -91,16 +94,18 @@ class DuoApi
   def get_image(path, params = {}, additional_headers = nil)
     resp = request('GET', path, params, additional_headers)
     raise_http_errors(resp)
-    raise_content_type_errors(resp['content-type'], /^image\//)
+    headers = resp.to_hash.transform_keys(&:downcase)
+    raise_content_type_errors(headers['content-type'], /^image\//)
 
     resp.body
-  end  
+  end
 
   # Perform a POST request and parse the response as JSON
   def post(path, params = {}, additional_headers = nil)
     resp = request('POST', path, params, additional_headers)
     raise_http_errors(resp)
-    raise_content_type_errors(resp['content-type'], 'application/json')
+    headers = resp.to_hash.transform_keys(&:downcase)
+    raise_content_type_errors(headers['content-type'], 'application/json')
 
     JSON.parse(resp.body)
   end
@@ -109,7 +114,8 @@ class DuoApi
   def put(path, params = {}, additional_headers = nil)
     resp = request('PUT', path, params, additional_headers)
     raise_http_errors(resp)
-    raise_content_type_errors(resp['content-type'], 'application/json')
+    headers = resp.to_hash.transform_keys(&:downcase)
+    raise_content_type_errors(headers['content-type'], 'application/json')
 
     JSON.parse(resp.body)
   end
@@ -118,7 +124,8 @@ class DuoApi
   def delete(path, params = {}, additional_headers = nil)
     resp = request('DELETE', path, params, additional_headers)
     raise_http_errors(resp)
-    raise_content_type_errors(resp['content-type'], 'application/json')
+    headers = resp.to_hash.transform_keys(&:downcase)
+    raise_content_type_errors(headers['content-type'], 'application/json')
 
     JSON.parse(resp.body)
   end
@@ -128,14 +135,14 @@ class DuoApi
 
   # Raise errors for non-successful HTTP responses
   def raise_http_errors(resp)
-    return if resp.kind_of? Net::HTTPSuccess
+    return if resp.is_a?(Net::HTTPSuccess)
     case resp.code
     when '200'
       return
     when RATE_LIMITED_RESP_CODE
-      raise 'Rate limit retry max wait exceeded'
+      raise(RateLimitError, 'Rate limit retry max wait exceeded')
     else
-      raise "HTTP #{resp.code}: #{JSON.parse(resp.body)}"
+      raise(ResponseCodeError, "HTTP #{resp.code}: #{resp.body}")
     end
   end
 
@@ -147,7 +154,8 @@ class DuoApi
     else
       valid = true if received == allowed
     end
-    raise "Invalid Content-Type #{received}, should match #{allowed}" if not valid
+    raise(ContentTypeError,
+          "Invalid Content-Type #{received}, should match #{allowed.inspect}") if not valid
   end
 
   # Check if a value is a Base64 encoded string

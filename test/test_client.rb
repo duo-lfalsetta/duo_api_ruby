@@ -1,30 +1,14 @@
-require 'test/unit'
-require 'mocha/test_unit'
-require 'duo_api'
+require_relative 'common'
 
-IKEY = 'test_ikey'
-SKEY = 'gtdfxv9YgVBYcF6dl2Eq17KUQJN2PLM2ODVTkvoT'
-HOST = 'foO.BAr52.cOm'
-
-
-class TestCase < Test::Unit::TestCase
-
-  def setup
-    @client = DuoApi.new(IKEY, SKEY, HOST)
-  end
-
-end
 
 class TestCertificateAuthority < TestCase
-
   def test_default_ca_file_exists
     assert_equal(true, File.exist?(@client.ca_file))
   end
-
 end
 
-class TestQueryParameters < TestCase
 
+class TestQueryParameters < TestCase
   def assert_canon_params(params, expected)
     actual = @client.send(:canon_params, params)
     assert_equal(expected, actual)
@@ -107,6 +91,7 @@ class TestQueryParameters < TestCase
   end
 end
 
+
 class TestCanonicalize < TestCase
   def test_sig_v5_params
     params = {
@@ -144,6 +129,7 @@ class TestCanonicalize < TestCase
   end
 end
 
+
 class TestSign < TestCase
   def test_hmac_sha512
     params = {
@@ -161,16 +147,8 @@ class TestSign < TestCase
     assert_equal(expected_sig, actual_sig)
     assert_equal(expected_date, actual_date)
   end
-
 end
 
-class MockResponse < Object
-  attr_reader :code
-
-  def initialize(code)
-    @code = code
-  end
-end
 
 class TestRetryRequests < TestCase
   def setup
@@ -209,5 +187,4 @@ class TestRetryRequests < TestCase
     actual_response = @client.request('GET', '/foo/bar')
     assert_equal(@limited_response, actual_response)
   end
-
 end

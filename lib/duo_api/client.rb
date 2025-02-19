@@ -6,6 +6,8 @@ require 'net/https'
 require 'time'
 require 'uri'
 
+require_relative 'errors'
+
 
 ##
 # A Ruby implementation of the Duo API
@@ -137,7 +139,7 @@ class DuoApi
     additional_headers ||= {}
 
     if not additional_headers.select{|k,v| k.nil? or v.nil?}.empty?
-      raise 'Not allowed "nil" as a header name or value'
+      raise(HeaderError, 'Not allowed "nil" as a header name or value')
     end
 
     canon_list = []
@@ -156,10 +158,13 @@ class DuoApi
 
   # Validate additional headers to ensure they meet requirements
   def validate_additional_header(header_name, value, added_headers)
-    raise 'Not allowed "Null" character in header name' if header_name.include?("\x00")
-    raise 'Not allowed "Null" character in header value' if value.include?("\x00")
-    raise 'Additional headers must start with \'X-Duo-\'' unless header_name.downcase.start_with?('x-duo-')
-    raise "Duplicate header passed, header=#{header_name}" if added_headers.include?(header_name.downcase)
+    header_name.downcase!
+    raise(HeaderError, 'Not allowed "Null" character in header name') if header_name.include?("\x00")
+    raise(HeaderError, 'Not allowed "Null" character in header value') if value.include?("\x00")
+    raise(HeaderError,
+          'Additional headers must start with \'X-Duo-\'') unless header_name.start_with?('x-duo-')
+    raise(HeaderError,
+          "Duplicate header passed, header=#{header_name}") if added_headers.include?(header_name)
   end
 
   # Construct the request URI

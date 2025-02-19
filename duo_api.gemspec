@@ -8,13 +8,14 @@ Gem::Specification.new do |s|
   s.license     = 'BSD-3-Clause'
   s.authors     = ['Duo Security']
   s.files       = [
+    'ca_certs.pem',
     'lib/duo_api.rb',
-    'lib/duo_api/client.rb',
-    'lib/duo_api/helpers.rb',
-    'lib/duo_api/admin.rb',
     'lib/duo_api/accounts.rb',
+    'lib/duo_api/admin.rb',
     'lib/duo_api/auth.rb',
-    'ca_certs.pem'
+    'lib/duo_api/client.rb',
+    'lib/duo_api/custom_errors.rb',
+    'lib/duo_api/helpers.rb'
   ]
   s.add_dependency 'base64', '~> 0.2.0'
   s.add_development_dependency 'rake', '~> 12.0'

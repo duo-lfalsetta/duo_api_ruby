@@ -28,7 +28,7 @@ class DuoApi
     #
     def admin_api(child_account_id:)
       child_account = get_child_accounts().select{|a| a['account_id'] == child_account_id}.first
-      raise "Child account #{child_account_id} not found" unless child_account
+      raise(ChildAccountError, "Child account #{child_account_id} not found") unless child_account
       client = DuoApi::Admin.new(@ikey, @skey, child_account['api_hostname'], @proxy_str,
                                  ca_file: @ca_file, default_params: {account_id: child_account_id})
 
