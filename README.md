@@ -22,7 +22,7 @@
 
 duo_api_ruby uses the Ruby openssl extension for TLS operations.
 
-All currently supported Ruby versions (3.1 and higher) support TLS 1.2 and 1.3.
+All Ruby versions compatible with this gem (2.5 and higher) support TLS 1.2 and 1.3.
 
 # Installing
 
