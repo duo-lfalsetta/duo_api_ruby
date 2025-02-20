@@ -9,29 +9,29 @@ class TestHelpersBasic < TestCase
 
     @json_ok_str_resp = MockResponse.new(
       '200',
-      JSON.generate({
+      {
         stat: 'OK',
         response: 'RESPONSE STRING'
-      }),
+      },
       {'Content-Type' => 'application/json'}
     )
 
     @json_ok_arr_resp = MockResponse.new(
       '200',
-      JSON.generate({
+      {
         stat: 'OK',
         response: [ 'RESPONSE1', 'RESPONSE2' ]
-      }),
+      },
       {'Content-Type' => 'application/json'}
     )
 
     @json_fail = MockResponse.new(
       '400',
-      JSON.generate({
+      {
         stat: 'FAIL',
         message: 'ERROR MESSAGE',
         message_detail: 'ERROR MESSAGE DETAIL'
-      }),
+      },
       {'content-type' => 'application/json'}
     )
 

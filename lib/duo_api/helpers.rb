@@ -8,8 +8,7 @@ class DuoApi
   def get(path, params = {}, additional_headers = nil)
     resp = request('GET', path, params, additional_headers)
     raise_http_errors(resp)
-    headers = resp.to_hash.transform_keys(&:downcase)
-    raise_content_type_errors(headers['content-type'], 'application/json')
+    raise_content_type_errors(resp['content-type'], 'application/json')
 
     JSON.parse(resp.body)
   end
@@ -41,8 +40,7 @@ class DuoApi
     loop do
       resp = request('GET', path, params, additional_headers)
       raise_http_errors(resp)
-      headers = resp.to_hash.transform_keys(&:downcase)
-      raise_content_type_errors(headers['content-type'], 'application/json')
+      raise_content_type_errors(resp['content-type'], 'application/json')
 
       resp_body_hash = JSON.parse(resp.body)
       resp_data_array = resp_body_hash.dig(*data_array_path)
@@ -94,8 +92,7 @@ class DuoApi
   def get_image(path, params = {}, additional_headers = nil)
     resp = request('GET', path, params, additional_headers)
     raise_http_errors(resp)
-    headers = resp.to_hash.transform_keys(&:downcase)
-    raise_content_type_errors(headers['content-type'], /^image\//)
+    raise_content_type_errors(resp['content-type'], /^image\//)
 
     resp.body
   end
@@ -104,8 +101,7 @@ class DuoApi
   def post(path, params = {}, additional_headers = nil)
     resp = request('POST', path, params, additional_headers)
     raise_http_errors(resp)
-    headers = resp.to_hash.transform_keys(&:downcase)
-    raise_content_type_errors(headers['content-type'], 'application/json')
+    raise_content_type_errors(resp['content-type'], 'application/json')
 
     JSON.parse(resp.body)
   end
@@ -114,8 +110,7 @@ class DuoApi
   def put(path, params = {}, additional_headers = nil)
     resp = request('PUT', path, params, additional_headers)
     raise_http_errors(resp)
-    headers = resp.to_hash.transform_keys(&:downcase)
-    raise_content_type_errors(headers['content-type'], 'application/json')
+    raise_content_type_errors(resp['content-type'], 'application/json')
 
     JSON.parse(resp.body)
   end
@@ -124,8 +119,7 @@ class DuoApi
   def delete(path, params = {}, additional_headers = nil)
     resp = request('DELETE', path, params, additional_headers)
     raise_http_errors(resp)
-    headers = resp.to_hash.transform_keys(&:downcase)
-    raise_content_type_errors(headers['content-type'], 'application/json')
+    raise_content_type_errors(resp['content-type'], 'application/json')
 
     JSON.parse(resp.body)
   end

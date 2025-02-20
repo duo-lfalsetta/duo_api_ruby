@@ -15,22 +15,17 @@ class TestCase < Test::Unit::TestCase
 end
 
 class MockResponse < Object
-  attr_accessor :code
-  attr_accessor :body
-  attr_accessor :headers
+  attr_reader :code
+  attr_reader :body
+  attr_reader :headers
 
   def initialize(code, body = nil, headers = {})
     @code = code.to_s
-    @body = body
-    @headers = headers.transform_keys(&:to_s)
+    @body = body.is_a?(Hash) ? JSON.generate(body) : body
+    @headers = headers.transform_keys{|k| k.to_s.downcase}
   end
 
   def [](key)
-    stringkey = key.to_s
-    headers[stringkey]
-  end
-
-  def []=(key)
     stringkey = key.to_s
     headers[stringkey]
   end
@@ -46,4 +41,8 @@ class MockResponse < Object
       'HTTP Body:', self.body
     ].join("\n")
   end
+end
+
+def stringify_hash_keys(hash)
+  JSON.parse(JSON.generate(hash))
 end

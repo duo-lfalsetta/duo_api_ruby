@@ -345,7 +345,7 @@ class DuoApi
     # Integrations
     #
     def get_integrations()
-      get_all('/admin/v2/integrations')['response']
+      get_all('/admin/v3/integrations')['response']
     end
 
     def create_integration(name:, type:, **optional_params)
@@ -358,11 +358,11 @@ class DuoApi
       #
       #      sso params: https://duo.com/docs/adminapi#sso-parameters
       params = optional_params.merge({name: name, type: type})
-      post('/admin/v2/integrations', params)['response']
+      post('/admin/v3/integrations', params)['response']
     end
 
     def get_integration(integration_key:)
-      get("/admin/v2/integrations/#{integration_key}")['response']
+      get("/admin/v3/integrations/#{integration_key}")['response']
     end
 
     def update_integration(integration_key:, **optional_params)
@@ -375,31 +375,31 @@ class DuoApi
       #                  name, policy_key, prompt_v4_enabled, reset_secret_key
       #
       #      sso params: https://duo.com/docs/adminapi#sso-parameters
-      post("/admin/v2/integrations/#{integration_key}", optional_params)['response']
+      post("/admin/v3/integrations/#{integration_key}", optional_params)['response']
     end
 
     def delete_integration(integration_key:)
-      delete("/admin/v2/integrations/#{integration_key}")['response']
+      delete("/admin/v3/integrations/#{integration_key}")['response']
     end
 
     def get_integration_secret_key(integration_key:)
-      get("/admin/v2/integrations/#{integration_key}/skey")['response']
+      get("/admin/v3/integrations/#{integration_key}/skey")['response']
     end
 
     def get_oauth_integration_client_secret(integration_key:, client_id:)
-      get("/admin/v2/integrations/oauth_cc/#{integration_key}/client_secret/#{client_id}")['response']
+      get("/admin/v3/integrations/oauth_cc/#{integration_key}/client_secret/#{client_id}")['response']
     end
 
     def reset_oauth_integration_client_secret(integration_key:, client_id:)
-      post("/admin/v2/integrations/oauth_cc/#{integration_key}/client_secret/#{client_id}")['response']
+      post("/admin/v3/integrations/oauth_cc/#{integration_key}/client_secret/#{client_id}")['response']
     end
 
     def get_oidc_integration_client_secret(integration_key:)
-      get("/admin/v2/integrations/oidc/#{integration_key}/client_secret")['response']
+      get("/admin/v3/integrations/oidc/#{integration_key}/client_secret")['response']
     end
 
     def reset_oidc_integration_client_secret(integration_key:)
-      post("/admin/v2/integrations/oidc/#{integration_key}/client_secret")['response']
+      post("/admin/v3/integrations/oidc/#{integration_key}/client_secret")['response']
     end
 
 
