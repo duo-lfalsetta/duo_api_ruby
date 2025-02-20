@@ -13,15 +13,16 @@
 **Accounts** - https://www.duosecurity.com/docs/accountsapi
 
 ## Tested Against Ruby Versions:
-* 3.0
 * 3.1
 * 3.2
+* 3.3
+* 3.4
 
 ## TLS 1.2 and 1.3 Support
 
-Duo_api_ruby uses the Ruby openssl extension for TLS operations.
+duo_api_ruby uses the Ruby openssl extension for TLS operations.
 
-All currently supported Ruby versions (2.7 and higher) support TLS 1.2 and 1.3.
+All currently supported Ruby versions (3.1 and higher) support TLS 1.2 and 1.3.
 
 # Installing
 

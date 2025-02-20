@@ -78,7 +78,7 @@ class DuoApi
 
     # Replace the data array in the last returned resp_body_hash with the all_data array
     if data_array_path.count > 1
-      data_array_parent_hash = resp_body_hash.dig(*data_array_path[..-2])
+      data_array_parent_hash = resp_body_hash.dig(*data_array_path[0..-2])
     else
       data_array_parent_hash = resp_body_hash
     end

@@ -17,10 +17,11 @@ Gem::Specification.new do |s|
     'lib/duo_api/custom_errors.rb',
     'lib/duo_api/helpers.rb'
   ]
+  s.required_ruby_version = '>= 2.5'
   s.add_dependency 'base64', '~> 0.2.0'
-  s.add_development_dependency 'rake', '~> 12.0'
-  s.add_development_dependency 'rubocop', '~> 0.49.0'
-  s.add_development_dependency 'test-unit', '~> 3.2'
-  s.add_development_dependency 'mocha', '~> 1.8.0'
-  s.add_development_dependency 'ostruct', '~> 0.1.0'
+  s.add_development_dependency 'rake', '>= 13.2.1'
+  s.add_development_dependency 'rubocop', '~> 1.28.2'
+  s.add_development_dependency 'test-unit', '~> 3.6.7'
+  s.add_development_dependency 'mocha', '~> 2.7.1'
+  s.add_development_dependency 'ostruct', '~> 0.6.1'
 end
