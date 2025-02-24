@@ -34,14 +34,14 @@ class TestHelpersPaginated < TestCase
       {'Content-Type' => 'application/json'}
     )
 
-    @standard_paged_combined_results = stringify_hash_keys({
+    @standard_paged_combined_results = {
       stat: 'OK',
       response: [ 'RESPONSE1', 'RESPONSE2', 'RESPONSE3', 'RESPONSE4' ],
       metadata: {
         total_objects: 4,
         prev_offset: 2
       }
-    })
+    }
 
     @nonstandard_paged_response_1 = MockResponse.new(
       '200',
@@ -69,13 +69,13 @@ class TestHelpersPaginated < TestCase
       {'Content-Type' => 'application/json'}
     )
 
-    @nonstandard_paged_combined_results = stringify_hash_keys({
+    @nonstandard_paged_combined_results = {
       stat: 'OK',
       response: {
         items: [ 'RESPONSE1', 'RESPONSE2', 'RESPONSE3', 'RESPONSE4' ],
         metadata: {}
       }
-    })
+    }
   end
 
 

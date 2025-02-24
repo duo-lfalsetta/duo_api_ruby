@@ -8,18 +8,18 @@ class DuoApi
   def get(path, params = {}, additional_headers = nil)
     resp = request('GET', path, params, additional_headers)
     raise_http_errors(resp)
-    raise_content_type_errors(resp['content-type'], 'application/json')
+    raise_content_type_errors(resp[:'content-type'], 'application/json')
 
-    JSON.parse(resp.body)
+    JSON.parse(resp.body, symbolize_names: true)
   end
 
   # Perform a GET request and retrieve all paginated JSON data
   def get_all(path, params = {}, additional_headers = nil, data_array_path: nil, metadata_path: nil)
     # Set default paths for returned data array and metadata if not provided
     data_array_path = (data_array_path.is_a?(Array) and data_array_path.count >= 1) ?
-      data_array_path : ['response']
+      data_array_path.map(&:to_sym) : [ :response ]
     metadata_path = (metadata_path.is_a?(Array) and metadata_path.count >= 1) ?
-      metadata_path : ['metadata']
+      metadata_path.map(&:to_sym) : [ :metadata ]
 
     # Ensure params keys are symbols and ignore offset parameters
     params.transform_keys!(&:to_sym)
@@ -40,9 +40,9 @@ class DuoApi
     loop do
       resp = request('GET', path, params, additional_headers)
       raise_http_errors(resp)
-      raise_content_type_errors(resp['content-type'], 'application/json')
+      raise_content_type_errors(resp[:'content-type'], 'application/json')
 
-      resp_body_hash = JSON.parse(resp.body)
+      resp_body_hash = JSON.parse(resp.body, symbolize_names: true)
       resp_data_array = resp_body_hash.dig(*data_array_path)
       if not resp_data_array.is_a?(Array)
         raise(PaginationError,
@@ -51,8 +51,8 @@ class DuoApi
       all_data.concat(resp_data_array)
 
       resp_metadata = resp_body_hash.dig(*metadata_path)
-      if resp_metadata.is_a?(Hash) and resp_metadata['next_offset']
-        next_offset = resp_metadata['next_offset']
+      if resp_metadata.is_a?(Hash) and resp_metadata[:next_offset]
+        next_offset = resp_metadata[:next_offset]
         next_offset = next_offset.to_i if is_string_int?(next_offset)
 
         if next_offset.is_a?(Array) or next_offset.is_a?(String)
@@ -92,7 +92,7 @@ class DuoApi
   def get_image(path, params = {}, additional_headers = nil)
     resp = request('GET', path, params, additional_headers)
     raise_http_errors(resp)
-    raise_content_type_errors(resp['content-type'], /^image\//)
+    raise_content_type_errors(resp[:'content-type'], /^image\//)
 
     resp.body
   end
@@ -101,27 +101,27 @@ class DuoApi
   def post(path, params = {}, additional_headers = nil)
     resp = request('POST', path, params, additional_headers)
     raise_http_errors(resp)
-    raise_content_type_errors(resp['content-type'], 'application/json')
+    raise_content_type_errors(resp[:'content-type'], 'application/json')
 
-    JSON.parse(resp.body)
+    JSON.parse(resp.body, symbolize_names: true)
   end
 
   # Perform a PUT request and parse the response as JSON
   def put(path, params = {}, additional_headers = nil)
     resp = request('PUT', path, params, additional_headers)
     raise_http_errors(resp)
-    raise_content_type_errors(resp['content-type'], 'application/json')
+    raise_content_type_errors(resp[:'content-type'], 'application/json')
 
-    JSON.parse(resp.body)
+    JSON.parse(resp.body, symbolize_names: true)
   end
 
   # Perform a DELETE request and parse the response as JSON
   def delete(path, params = {}, additional_headers = nil)
     resp = request('DELETE', path, params, additional_headers)
     raise_http_errors(resp)
-    raise_content_type_errors(resp['content-type'], 'application/json')
+    raise_content_type_errors(resp[:'content-type'], 'application/json')
 
-    JSON.parse(resp.body)
+    JSON.parse(resp.body, symbolize_names: true)
   end
 
 

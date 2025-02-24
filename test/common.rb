@@ -22,12 +22,12 @@ class MockResponse < Object
   def initialize(code, body = nil, headers = {})
     @code = code.to_s
     @body = body.is_a?(Hash) ? JSON.generate(body) : body
-    @headers = headers.transform_keys{|k| k.to_s.downcase}
+    @headers = headers.transform_keys{|k| k.to_s.downcase.to_sym}
   end
 
   def [](key)
-    stringkey = key.to_s
-    headers[stringkey]
+    standardized_key = key.to_s.downcase.to_sym
+    headers[standardized_key]
   end
 
   def to_hash()
@@ -43,6 +43,7 @@ class MockResponse < Object
   end
 end
 
-def stringify_hash_keys(hash)
-  JSON.parse(JSON.generate(hash))
+
+def json_to_sym_hash(json)
+  JSON.parse(json, symbolize_names: true)
 end

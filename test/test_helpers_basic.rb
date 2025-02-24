@@ -13,7 +13,7 @@ class TestHelpersBasic < TestCase
         stat: 'OK',
         response: 'RESPONSE STRING'
       },
-      {'Content-Type' => 'application/json'}
+      {'Content-Type': 'application/json'}
     )
 
     @json_ok_arr_resp = MockResponse.new(
@@ -22,7 +22,7 @@ class TestHelpersBasic < TestCase
         stat: 'OK',
         response: [ 'RESPONSE1', 'RESPONSE2' ]
       },
-      {'Content-Type' => 'application/json'}
+      {'Content-Type': 'application/json'}
     )
 
     @json_fail = MockResponse.new(
@@ -32,13 +32,13 @@ class TestHelpersBasic < TestCase
         message: 'ERROR MESSAGE',
         message_detail: 'ERROR MESSAGE DETAIL'
       },
-      {'content-type' => 'application/json'}
+      {'content-type': 'application/json'}
     )
 
     @json_invalid = MockResponse.new(
       '200',
       'This is not valid JSON.',
-      {'content-type' => 'application/json'}
+      {'content-type': 'application/json'}
     )
 
     @image_ok = MockResponse.new(
@@ -55,7 +55,7 @@ class TestHelpersBasic < TestCase
   def test_get_ok
     @mock_http.expects(:request).returns(@json_ok_str_resp)
     actual_response = @client.get('/fake')
-    assert_equal(JSON.parse(@json_ok_str_resp.body), actual_response)
+    assert_equal(json_to_sym_hash(@json_ok_str_resp.body), actual_response)
   end
 
   def test_get_fail
@@ -82,7 +82,7 @@ class TestHelpersBasic < TestCase
   def test_get_all_ok
     @mock_http.expects(:request).returns(@json_ok_arr_resp)
     actual_response = @client.get_all('/fake')
-    assert_equal(JSON.parse(@json_ok_arr_resp.body), actual_response)
+    assert_equal(json_to_sym_hash(@json_ok_arr_resp.body), actual_response)
   end
 
   def test_get_all_fail
@@ -124,7 +124,7 @@ class TestHelpersBasic < TestCase
   def test_post_ok
     @mock_http.expects(:request).returns(@json_ok_str_resp)
     actual_response = @client.post('/fake')
-    assert_equal(JSON.parse(@json_ok_str_resp.body), actual_response)
+    assert_equal(json_to_sym_hash(@json_ok_str_resp.body), actual_response)
   end
 
   def test_post_fail
@@ -151,7 +151,7 @@ class TestHelpersBasic < TestCase
   def test_put_ok
     @mock_http.expects(:request).returns(@json_ok_str_resp)
     actual_response = @client.put('/fake')
-    assert_equal(JSON.parse(@json_ok_str_resp.body), actual_response)
+    assert_equal(json_to_sym_hash(@json_ok_str_resp.body), actual_response)
   end
 
   def test_put_fail
@@ -178,7 +178,7 @@ class TestHelpersBasic < TestCase
   def test_delete_ok
     @mock_http.expects(:request).returns(@json_ok_str_resp)
     actual_response = @client.delete('/fake')
-    assert_equal(JSON.parse(@json_ok_str_resp.body), actual_response)
+    assert_equal(json_to_sym_hash(@json_ok_str_resp.body), actual_response)
   end
 
   def test_delete_fail

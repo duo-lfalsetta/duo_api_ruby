@@ -11,15 +11,15 @@ class DuoApi
     # Accounts API
     #
     def get_child_accounts()
-      post('/accounts/v1/account/list')['response']
+      post('/accounts/v1/account/list')[:response]
     end
 
     def create_child_account(name:)
-      post('/accounts/v1/account/create')['response']
+      post('/accounts/v1/account/create')[:response]
     end
 
     def delete_child_account(account_id:)
-      post('/accounts/v1/account/delete')['response']
+      post('/accounts/v1/account/delete')[:response]
     end
 
 
@@ -41,21 +41,21 @@ class DuoApi
       #
       client.instance_eval do
         def get_edition()
-          get('/admin/v1/billing/edition')['response']
+          get('/admin/v1/billing/edition')[:response]
         end
 
         def set_edition(edition:)
           params = {edition: edition}
-          post('/admin/v1/billing/edition', params)['response']
+          post('/admin/v1/billing/edition', params)[:response]
         end
 
         def get_telephony_credits()
-          get('/admin/v1/billing/telephony_credits')['response']
+          get('/admin/v1/billing/telephony_credits')[:response]
         end
 
         def set_telephony_credits(credits:)
           params = {credits: credits}
-          post('/admin/v1/billing/telephony_credits', params)['response']
+          post('/admin/v1/billing/telephony_credits', params)[:response]
         end
       end
 
