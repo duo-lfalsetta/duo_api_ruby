@@ -27,9 +27,9 @@ class DuoApi
     # Child Account Admin API Wrapper
     #
     def admin_api(child_account_id:)
-      child_account = get_child_accounts().select{|a| a['account_id'] == child_account_id}.first
+      child_account = get_child_accounts().select{|a| a[:account_id] == child_account_id}.first
       raise(ChildAccountError, "Child account #{child_account_id} not found") unless child_account
-      client = DuoApi::Admin.new(@ikey, @skey, child_account['api_hostname'], @proxy_str,
+      client = DuoApi::Admin.new(@ikey, @skey, child_account[:api_hostname], @proxy_str,
                                  ca_file: @ca_file, default_params: {account_id: child_account_id})
 
       # Additional Child Account Admin API Methods
