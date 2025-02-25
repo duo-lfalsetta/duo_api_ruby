@@ -6,8 +6,6 @@ require 'net/https'
 require 'time'
 require 'uri'
 
-require_relative 'errors'
-
 
 ##
 # A Ruby implementation of the Duo API
@@ -196,4 +194,13 @@ class DuoApi
     date, canon = canonicalize(method, host, path, params, body, additional_headers, options: options)
     [date, OpenSSL::HMAC.hexdigest('sha512', @skey, canon)]
   end
+
+  # Custom Error Classes
+  class HeaderError < StandardError; end
+  class RateLimitError < StandardError; end
+  class ResponseCodeError < StandardError; end
+  class ContentTypeError < StandardError; end
+  class PaginationError < StandardError; end
+  class ChildAccountError < StandardError; end
 end
+

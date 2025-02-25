@@ -1,7 +1,5 @@
 class DuoApi; end
 
-require_relative 'duo_api/errors'
-
 require_relative 'duo_api/client'
 require_relative 'duo_api/helpers'
 
