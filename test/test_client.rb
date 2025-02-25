@@ -1,14 +1,14 @@
 require_relative 'common'
 
 
-class TestCertificateAuthority < TestCase
+class TestCertificateAuthority < BaseTestCase
   def test_default_ca_file_exists
     assert_equal(true, File.exist?(@client.ca_file))
   end
 end
 
 
-class TestQueryParameters < TestCase
+class TestQueryParameters < BaseTestCase
   def assert_canon_params(params, expected)
     actual = @client.send(:canon_params, params)
     assert_equal(expected, actual)
@@ -92,7 +92,7 @@ class TestQueryParameters < TestCase
 end
 
 
-class TestCanonicalize < TestCase
+class TestCanonicalize < BaseTestCase
   def test_sig_v5_params
     params = {
       "\u469a\u287b\u35d0\u8ef3\u6727\u502a\u0810\ud091\u00c8\uc170" => "\u0f45\u1a76\u341a\u654c\uc23f\u9b09\uabe2\u8343\u1b27\u60d0",
@@ -130,7 +130,7 @@ class TestCanonicalize < TestCase
 end
 
 
-class TestSign < TestCase
+class TestSign < BaseTestCase
   def test_hmac_sha512
     params = {
       "\u469a\u287b\u35d0\u8ef3\u6727\u502a\u0810\ud091\u00c8\uc170" => "\u0f45\u1a76\u341a\u654c\uc23f\u9b09\uabe2\u8343\u1b27\u60d0",
@@ -150,12 +150,9 @@ class TestSign < TestCase
 end
 
 
-class TestRetryRequests < TestCase
-  def setup
-    super
-    @mock_http = mock()
-    Net::HTTP.expects(:start).yields(@mock_http)
-
+class TestRetryRequests < HTTPTestCase
+  setup
+  def setup_globals
     @limited_response = MockResponse.new('429')
     @ok_response = MockResponse.new('200')
   end

@@ -10,7 +10,7 @@ class DuoApi
     raise_http_errors(resp)
     raise_content_type_errors(resp[:'content-type'], 'application/json')
 
-    JSON.parse(resp.body, symbolize_names: true)
+    parse_json_to_sym_hash(resp.body)
   end
 
   # Perform a GET request and retrieve all paginated JSON data
@@ -42,7 +42,7 @@ class DuoApi
       raise_http_errors(resp)
       raise_content_type_errors(resp[:'content-type'], 'application/json')
 
-      resp_body_hash = JSON.parse(resp.body, symbolize_names: true)
+      resp_body_hash = parse_json_to_sym_hash(resp.body)
       resp_data_array = resp_body_hash.dig(*data_array_path)
       if not resp_data_array.is_a?(Array)
         raise(PaginationError,
@@ -103,7 +103,7 @@ class DuoApi
     raise_http_errors(resp)
     raise_content_type_errors(resp[:'content-type'], 'application/json')
 
-    JSON.parse(resp.body, symbolize_names: true)
+    parse_json_to_sym_hash(resp.body)
   end
 
   # Perform a PUT request and parse the response as JSON
@@ -112,7 +112,7 @@ class DuoApi
     raise_http_errors(resp)
     raise_content_type_errors(resp[:'content-type'], 'application/json')
 
-    JSON.parse(resp.body, symbolize_names: true)
+    parse_json_to_sym_hash(resp.body)
   end
 
   # Perform a DELETE request and parse the response as JSON
@@ -121,7 +121,7 @@ class DuoApi
     raise_http_errors(resp)
     raise_content_type_errors(resp[:'content-type'], 'application/json')
 
-    JSON.parse(resp.body, symbolize_names: true)
+    parse_json_to_sym_hash(resp.body)
   end
 
 
@@ -168,6 +168,11 @@ class DuoApi
     rescue
       false
     end
+  end
+
+  # Parse JSON string to Hash with symbol keys
+  def parse_json_to_sym_hash(json)
+    JSON.parse(json, symbolize_names: true)
   end
 
 end

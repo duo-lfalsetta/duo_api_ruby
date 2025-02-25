@@ -8,11 +8,20 @@ SKEY = 'gtdfxv9YgVBYcF6dl2Eq17KUQJN2PLM2ODVTkvoT'
 HOST = 'foO.BAr52.cOm'
 
 
-class TestCase < Test::Unit::TestCase
-  def setup
+class BaseTestCase < Test::Unit::TestCase
+  def setup()
     @client = DuoApi.new(IKEY, SKEY, HOST)
   end
 end
+
+class HTTPTestCase < BaseTestCase
+  setup
+  def setup_http()
+    @mock_http = mock()
+    Net::HTTP.expects(:start).at_least_once.yields(@mock_http)
+  end
+end
+
 
 class MockResponse < Object
   attr_reader :code
@@ -44,6 +53,7 @@ class MockResponse < Object
 end
 
 
-def json_to_sym_hash(json)
+# Parse JSON string to Hash with symbol keys
+def parse_json_to_sym_hash(json)
   JSON.parse(json, symbolize_names: true)
 end

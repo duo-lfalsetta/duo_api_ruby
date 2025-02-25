@@ -1,12 +1,9 @@
 require_relative 'common'
 
 
-class TestHelpersPaginated < TestCase
-  def setup
-    super
-    @mock_http = mock()
-    Net::HTTP.expects(:start).at_least_once.yields(@mock_http)
-
+class TestHelpersPaginated < HTTPTestCase
+  setup
+  def setup_globals
     @standard_paged_response_1 = MockResponse.new(
       '200',
       {
