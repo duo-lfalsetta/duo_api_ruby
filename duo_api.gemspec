@@ -14,7 +14,6 @@ Gem::Specification.new do |s|
     'lib/duo_api/admin.rb',
     'lib/duo_api/auth.rb',
     'lib/duo_api/client.rb',
-    'lib/duo_api/custom_errors.rb',
     'lib/duo_api/helpers.rb'
   ]
   s.required_ruby_version = '>= 2.5'
