@@ -5,7 +5,7 @@ require_relative 'helpers'
 class DuoApi
   class Admin < DuoApi
 
-    ###
+    ##
     # Users
     #
     def get_users(**optional_params)
@@ -143,7 +143,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Bulk Operations
     #
     def bulk_operations(operations:)
@@ -160,7 +160,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Groups
     #
     def get_groups(**optional_params)
@@ -192,7 +192,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Phones
     #
     def get_phones(**optional_params)
@@ -238,7 +238,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Tokens
     #
     def get_tokens(**optional_params)
@@ -266,7 +266,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # WebAuthn Credentials
     #
     def get_webauthncredentials()
@@ -282,7 +282,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Desktop Authenticators
     #
     def get_desktop_authenticators()
@@ -325,7 +325,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Bypass Codes
     #
     def get_bypass_codes()
@@ -341,7 +341,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Integrations
     #
     def get_integrations()
@@ -403,7 +403,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Policies
     #
     def get_policies_summary()
@@ -412,6 +412,10 @@ class DuoApi
 
     def get_policies()
       get_all('/admin/v2/policies')[:response]
+    end
+
+    def get_global_policy()
+      get('/admin/v2/policies/global')[:response]
     end
 
     def get_policy(policy_key:)
@@ -453,7 +457,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Endpoints
     #
     def get_endpoints()
@@ -465,7 +469,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Registered Devices
     #
     def get_registered_devices()
@@ -507,7 +511,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Passport
     #
     def get_passport_config()
@@ -521,7 +525,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Administrators
     #
     def get_admins()
@@ -611,7 +615,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Administrative Units
     #
     def get_administrative_units(**optional_params)
@@ -665,7 +669,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Logs
     #
     def get_authentication_logs(mintime:, maxtime:, **optional_params)
@@ -709,7 +713,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Trust Monitor
     #
     def get_trust_monitor_events(mintime:, maxtime:, **optional_params)
@@ -723,7 +727,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Settings
     #
     def get_settings()
@@ -761,7 +765,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Custom Branding
     #
     def get_custom_branding()
@@ -806,7 +810,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Account Info
     #
     def get_account_info_summary()

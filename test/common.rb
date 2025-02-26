@@ -8,21 +8,7 @@ SKEY = 'gtdfxv9YgVBYcF6dl2Eq17KUQJN2PLM2ODVTkvoT'
 HOST = 'foO.BAr52.cOm'
 
 
-class BaseTestCase < Test::Unit::TestCase
-  def setup()
-    @client = DuoApi.new(IKEY, SKEY, HOST)
-  end
-end
-
-class HTTPTestCase < BaseTestCase
-  setup
-  def setup_http()
-    @mock_http = mock()
-    Net::HTTP.expects(:start).times(0..2).yields(@mock_http)
-  end
-end
-
-
+# Custom MockResponse object to simulate basics of Net::HTTPResponse
 class MockResponse < Object
   attr_reader :code
   attr_reader :body
@@ -52,8 +38,83 @@ class MockResponse < Object
   end
 end
 
+##
+# Custom Test Cases
+#
+class BaseTestCase < Test::Unit::TestCase
+  def setup
+    @client = DuoApi.new(IKEY, SKEY, HOST)
+  end
+end
 
-# Get rid of backtraces on errors for tests
+class HTTPTestCase < BaseTestCase
+  setup
+  def setup_http
+    @mock_http = mock()
+    Net::HTTP.expects(:start).times(0..2).yields(@mock_http)
+  end
+
+  setup
+  def setup_shared_globals
+    @ok_resp = MockResponse.new('200')
+
+    @ratelimit_resp = MockResponse.new('429')
+
+    @json_ok_str_resp = MockResponse.new(
+      '200',
+      {
+        stat: 'OK',
+        response: 'RESPONSE STRING'
+      },
+      {'Content-Type': 'application/json'}
+    )
+
+    @json_ok_hsh_resp = MockResponse.new(
+      '200',
+      {
+        stat: 'OK',
+        response: { KEY: 'VALUE' }
+      },
+      {'Content-Type': 'application/json'}
+    )
+
+    @json_ok_arr_resp = MockResponse.new(
+      '200',
+      {
+        stat: 'OK',
+        response: [ 'RESPONSE1', 'RESPONSE2' ]
+      },
+      {'Content-Type': 'application/json'}
+    )
+
+    @json_fail_resp = MockResponse.new(
+      '400',
+      {
+        stat: 'FAIL',
+        message: 'ERROR MESSAGE',
+        message_detail: 'ERROR MESSAGE DETAIL'
+      },
+      {'content-type': 'application/json'}
+    )
+
+    @json_invalid_resp = MockResponse.new(
+      '200',
+      'This is not valid JSON.',
+      {'content-type': 'application/json'}
+    )
+
+    @image_ok_resp = MockResponse.new(
+      '200',
+      Base64::decode64('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAA' +
+                       'AfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdj' +
+                       'yN7v9x8ABYkCeCbwZGwAAAAASUVORK5CYII='),
+                       {'content-type' => 'image/png'}
+    )
+  end
+end
+
+
+# Override StandardError to get rid of backtraces on errors for tests
 class StandardError
   def backtrace
     []

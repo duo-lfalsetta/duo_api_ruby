@@ -151,29 +151,23 @@ end
 
 
 class TestRetryRequests < HTTPTestCase
-  setup
-  def setup_globals
-    @limited_response = MockResponse.new('429')
-    @ok_response = MockResponse.new('200')
-  end
-
   def test_non_limited_response
-    @mock_http.expects(:request).returns(@ok_response)
+    @mock_http.expects(:request).returns(@ok_resp)
     @client.expects(:sleep).never
-    actual_response = @client.request('GET', '/foo/bar')
-    assert_equal(@ok_response, actual_response)
+    actual_resp = @client.request('GET', '/foo/bar')
+    assert_equal(@ok_resp, actual_resp)
   end
 
   def test_single_limited_response
-    @mock_http.expects(:request).twice.returns(@limited_response, @ok_response)
+    @mock_http.expects(:request).twice.returns(@ratelimit_resp, @ok_resp)
     @client.expects(:rand).returns(0.123)
     @client.expects(:sleep).with(1.123)
-    actual_response = @client.request('GET', '/foo/bar')
-    assert_equal(@ok_response, actual_response)
+    actual_resp = @client.request('GET', '/foo/bar')
+    assert_equal(@ok_resp, actual_resp)
   end
 
   def test_all_limited_responses
-    @mock_http.expects(:request).times(7).returns(@limited_response)
+    @mock_http.expects(:request).times(7).returns(@ratelimit_resp)
     @client.expects(:rand).times(6).returns(0.123)
     @client.expects(:sleep).with(1.123)
     @client.expects(:sleep).with(2.123)
@@ -181,7 +175,7 @@ class TestRetryRequests < HTTPTestCase
     @client.expects(:sleep).with(8.123)
     @client.expects(:sleep).with(16.123)
     @client.expects(:sleep).with(32.123)
-    actual_response = @client.request('GET', '/foo/bar')
-    assert_equal(@limited_response, actual_response)
+    actual_resp = @client.request('GET', '/foo/bar')
+    assert_equal(@ratelimit_resp, actual_resp)
   end
 end

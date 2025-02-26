@@ -7,7 +7,7 @@ require_relative 'admin'
 class DuoApi
   class Accounts < DuoApi
 
-    ###
+    ##
     # Accounts API
     #
     def get_child_accounts()
@@ -23,7 +23,7 @@ class DuoApi
     end
 
 
-    ###
+    ##
     # Child Account Admin API Wrapper
     #
     def admin_api(child_account_id:)
