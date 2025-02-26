@@ -48,6 +48,12 @@ class TestAuth < HTTPTestCase
   end
 
   def test_enroll_status
+    @mock_http.expects(:request).returns(@json_ok)
+    required_args = {user_id: 'USERID', activation_code: 'CODE'}
+    assert_nothing_raised(){ @auth_api.enroll_status(**required_args) }
+  end
+
+  def test_enroll_status_args_missing
     @mock_http.expects(:request).times(0)
     required_args = [:user_id, :activation_code]
     assert_raise_with_message(
@@ -62,6 +68,12 @@ class TestAuth < HTTPTestCase
   end
 
   def test_auth
+    @mock_http.expects(:request).returns(@json_ok)
+    required_args = {factor: 'auto'}
+    assert_nothing_raised(){ @auth_api.auth(**required_args) }
+  end
+
+  def test_auth_args_missing
     @mock_http.expects(:request).times(0)
     required_args = [:factor]
     assert_raise_with_message(
@@ -71,6 +83,12 @@ class TestAuth < HTTPTestCase
   end
 
   def test_auth_status
+    @mock_http.expects(:request).returns(@json_ok)
+    required_args = {txid: 'TXID'}
+    assert_nothing_raised(){ @auth_api.auth_status(**required_args) }
+  end
+
+  def test_auth_status_args_missing
     @mock_http.expects(:request).times(0)
     required_args = [:txid]
     assert_raise_with_message(
