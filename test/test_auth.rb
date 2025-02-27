@@ -31,6 +31,12 @@ class TestAuth < HTTPTestCase
     assert_nothing_raised(){ @auth_api.enroll() }
   end
 
+  def test_enroll_optional_args
+    @mock_http.expects(:request).returns(@json_ok_str_resp)
+    optional = {things: 'AND STUFF'}
+    assert_nothing_raised(){ @auth_api.enroll(**optional) }
+  end
+
   def test_enroll_status
     @mock_http.expects(:request).returns(@json_ok_str_resp)
     required_args = {user_id: 'USERID', activation_code: 'CODE'}
@@ -51,10 +57,23 @@ class TestAuth < HTTPTestCase
     assert_nothing_raised(){ @auth_api.preauth() }
   end
 
+  def test_preauth_optional_args
+    @mock_http.expects(:request).returns(@json_ok_str_resp)
+    optional = {things: 'AND STUFF'}
+    assert_nothing_raised(){ @auth_api.preauth(**optional) }
+  end
+
   def test_auth
     @mock_http.expects(:request).returns(@json_ok_str_resp)
     required_args = {factor: 'auto'}
     assert_nothing_raised(){ @auth_api.auth(**required_args) }
+  end
+
+  def test_auth_optional_args
+    @mock_http.expects(:request).returns(@json_ok_str_resp)
+    required_args = {factor: 'auto'}
+    optional = {things: 'AND STUFF'}
+    assert_nothing_raised(){ @auth_api.auth(**required_args, **optional) }
   end
 
   def test_auth_args_missing

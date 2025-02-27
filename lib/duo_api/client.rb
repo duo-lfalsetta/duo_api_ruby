@@ -12,6 +12,7 @@ require 'uri'
 #
 class DuoApi
   attr_accessor :ca_file
+  attr_accessor :default_params
 
   if Gem.loaded_specs['duo_api']
     VERSION = Gem.loaded_specs['duo_api'].version
@@ -43,6 +44,10 @@ class DuoApi
     end
     @ca_file = ca_file ||
       File.join(File.dirname(__FILE__), '..', '..', 'ca_certs.pem')
+    @default_params = default_params.transform_keys(&:to_sym)
+  end
+
+  def default_params=(default_params)
     @default_params = default_params.transform_keys(&:to_sym)
   end
 
