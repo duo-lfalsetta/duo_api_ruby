@@ -12,13 +12,18 @@
 
 **Accounts** - https://www.duosecurity.com/docs/accountsapi
 
-## Tested Against Ruby Versions:
+# Compatibility
+While the gem should work for Ruby versions >= 2.5, tests and linting may only work properly on Ruby versions >= 3.0.
+
+Tests are only run on currently supported Ruby versions.
+
+### Tested Against Ruby Versions:
 * 3.1
 * 3.2
 * 3.3
 * 3.4
 
-## TLS 1.2 and 1.3 Support
+### TLS 1.2 and 1.3 Support
 
 duo_api_ruby uses the Ruby openssl extension for TLS operations.
 
@@ -46,27 +51,31 @@ gem 'duo_api', '~> 1.0'
 ```
 
 # Using
-
-TODO
+ - Examples of doing things [the hard way](/examples/the_hard_way.md)
+ - Examples of doing things [the less hard way](/examples/the_less_hard_way.md)
+ - Examples of doing things [the simple way](/examples/the_simple_way.md)
 
 # Testing
-
+###### (Testing and Linting can be done simultaneously by running `rake` without specifying a task)
 ```
-$ rake
+$ rake test
 Loaded suite /usr/lib/ruby/vendor_ruby/rake/rake_test_loader
 Started
-........
-
-Finished in 0.002024715 seconds.
---------------------------------------------------------------------------------------------------------
-8 tests, 10 assertions, 0 failures, 0 errors, 0 pendings, 0 omissions, 0 notifications
+Finished in 0.123992 seconds.
+----------------------------------------------------------------------------------------------------------------------------
+368 tests, 1098 assertions, 0 failures, 0 errors, 0 pendings, 0 omissions, 0 notifications
 100% passed
---------------------------------------------------------------------------------------------------------
-3951.17 tests/s, 4938.97 assertions/s
+----------------------------------------------------------------------------------------------------------------------------
+2967.93 tests/s, 8855.41 assertions/s
 ```
 
 # Linting
-
+###### (Testing and Linting can be done simultaneously by running `rake` without specifying a task)
 ```
-$ rubocop
+$ rake rubocop
+Running RuboCop...
+Inspecting 15 files
+...............
+
+15 files inspected, no offenses detected
 ```

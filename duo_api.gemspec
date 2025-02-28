@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
     'lib/duo_api/client.rb',
     'lib/duo_api/helpers.rb'
   ]
-  s.required_ruby_version = '>= 2.7'
+  s.required_ruby_version = '>= 2.5'
   s.add_dependency 'base64', '~> 0.2.0'
   s.add_development_dependency 'mocha', '~> 2.7.1'
   s.add_development_dependency 'ostruct', '~> 0.6.1'
