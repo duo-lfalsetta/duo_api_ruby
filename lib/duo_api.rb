@@ -1,4 +1,4 @@
-class DuoApi; end
+# frozen_string_literal: true
 
 require_relative 'duo_api/client'
 require_relative 'duo_api/helpers'

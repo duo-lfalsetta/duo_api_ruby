@@ -1,5 +1,6 @@
-require_relative 'common'
+# frozen_string_literal: true
 
+require_relative 'common'
 
 class TestHelpersBasic < HTTPTestCase
   # @client.get()
@@ -13,7 +14,8 @@ class TestHelpersBasic < HTTPTestCase
     @mock_http.expects(:request).returns(@json_fail_resp)
     assert_raise_with_message(
       DuoApi::ResponseCodeError,
-      "HTTP #{@json_fail_resp.code}: #{@json_fail_resp.body}"){ @client.get('/fake') }
+      "HTTP #{@json_fail_resp.code}: #{@json_fail_resp.body}"
+    ){ @client.get('/fake') }
   end
 
   def test_get_invalid_response_format
@@ -25,7 +27,8 @@ class TestHelpersBasic < HTTPTestCase
     @mock_http.expects(:request).returns(@image_ok_resp)
     assert_raise_with_message(
       DuoApi::ContentTypeError,
-      'Invalid Content-Type image/png, should match "application/json"'){ @client.get('/fake') }
+      'Invalid Content-Type image/png, should match "application/json"'
+    ){ @client.get('/fake') }
   end
 
   def test_get_ratelimit_timeout
@@ -39,9 +42,9 @@ class TestHelpersBasic < HTTPTestCase
     @client.expects(:sleep).with(32.123)
     assert_raise_with_message(
       DuoApi::RateLimitError,
-      'Rate limit retry max wait exceeded'){ @client.get('/fake') }
+      'Rate limit retry max wait exceeded'
+    ){ @client.get('/fake') }
   end
-
 
   # @client.get_all()
   def test_get_all_ok
@@ -54,14 +57,14 @@ class TestHelpersBasic < HTTPTestCase
     @mock_http.expects(:request).returns(@json_fail_resp)
     assert_raise_with_message(
       DuoApi::ResponseCodeError,
-      "HTTP #{@json_fail_resp.code}: #{@json_fail_resp.body}"){ @client.get_all('/fake') }
+      "HTTP #{@json_fail_resp.code}: #{@json_fail_resp.body}"
+    ){ @client.get_all('/fake') }
   end
 
   def test_get_all_invalid
     @mock_http.expects(:request).returns(@json_invalid_resp)
     assert_raise(JSON::ParserError){ @client.get_all('/fake') }
   end
-
 
   # @client.get_image()
   def test_get_image_ok
@@ -74,16 +77,17 @@ class TestHelpersBasic < HTTPTestCase
     @mock_http.expects(:request).returns(@json_fail_resp)
     assert_raise_with_message(
       DuoApi::ResponseCodeError,
-      "HTTP #{@json_fail_resp.code}: #{@json_fail_resp.body}"){ @client.get_image('/fake') }
+      "HTTP #{@json_fail_resp.code}: #{@json_fail_resp.body}"
+    ){ @client.get_image('/fake') }
   end
 
   def test_get_image_invalid_response_content_type
     @mock_http.expects(:request).returns(@json_ok_str_resp)
     assert_raise_with_message(
       DuoApi::ContentTypeError,
-      'Invalid Content-Type application/json, should match /^image\//'){ @client.get_image('/fake') }
+      'Invalid Content-Type application/json, should match /^image\//'
+    ){ @client.get_image('/fake') }
   end
-
 
   # @client.post()
   def test_post_ok
@@ -96,7 +100,8 @@ class TestHelpersBasic < HTTPTestCase
     @mock_http.expects(:request).returns(@json_fail_resp)
     assert_raise_with_message(
       DuoApi::ResponseCodeError,
-      "HTTP #{@json_fail_resp.code}: #{@json_fail_resp.body}"){ @client.post('/fake') }
+      "HTTP #{@json_fail_resp.code}: #{@json_fail_resp.body}"
+    ){ @client.post('/fake') }
   end
 
   def test_post_invalid_response_format
@@ -108,9 +113,9 @@ class TestHelpersBasic < HTTPTestCase
     @mock_http.expects(:request).returns(@image_ok_resp)
     assert_raise_with_message(
       DuoApi::ContentTypeError,
-      'Invalid Content-Type image/png, should match "application/json"'){ @client.post('/fake') }
+      'Invalid Content-Type image/png, should match "application/json"'
+    ){ @client.post('/fake') }
   end
-
 
   # @client.put()
   def test_put_ok
@@ -123,7 +128,8 @@ class TestHelpersBasic < HTTPTestCase
     @mock_http.expects(:request).returns(@json_fail_resp)
     assert_raise_with_message(
       DuoApi::ResponseCodeError,
-      "HTTP #{@json_fail_resp.code}: #{@json_fail_resp.body}"){ @client.put('/fake') }
+      "HTTP #{@json_fail_resp.code}: #{@json_fail_resp.body}"
+    ){ @client.put('/fake') }
   end
 
   def test_put_invalid_response_format
@@ -135,9 +141,9 @@ class TestHelpersBasic < HTTPTestCase
     @mock_http.expects(:request).returns(@image_ok_resp)
     assert_raise_with_message(
       DuoApi::ContentTypeError,
-      'Invalid Content-Type image/png, should match "application/json"'){ @client.put('/fake') }
+      'Invalid Content-Type image/png, should match "application/json"'
+    ){ @client.put('/fake') }
   end
-
 
   # @client.delete()
   def test_delete_ok
@@ -150,7 +156,8 @@ class TestHelpersBasic < HTTPTestCase
     @mock_http.expects(:request).returns(@json_fail_resp)
     assert_raise_with_message(
       DuoApi::ResponseCodeError,
-      "HTTP #{@json_fail_resp.code}: #{@json_fail_resp.body}"){ @client.delete('/fake') }
+      "HTTP #{@json_fail_resp.code}: #{@json_fail_resp.body}"
+    ){ @client.delete('/fake') }
   end
 
   def test_delete_invalid_response_format
@@ -162,107 +169,108 @@ class TestHelpersBasic < HTTPTestCase
     @mock_http.expects(:request).returns(@image_ok_resp)
     assert_raise_with_message(
       DuoApi::ContentTypeError,
-      'Invalid Content-Type image/png, should match "application/json"'){ @client.delete('/fake') }
+      'Invalid Content-Type image/png, should match "application/json"'
+    ){ @client.delete('/fake') }
   end
 end
-
 
 class TestHelpersPaginated < HTTPTestCase
   setup
   def setup_test_globals
-    @standard_paged_response_1 = MockResponse.new(
+    @standard_paged_response1 = Net::HTTPSuccess.new(
       '200',
       {
         stat: 'OK',
-        response: [ 'RESPONSE1', 'RESPONSE2' ],
+        response: %w[RESPONSE1 RESPONSE2],
         metadata: {
           total_objects: 4,
           next_offset: 2,
           prev_offset: 0
         }
       },
-      {'Content-Type' => 'application/json'}
+      { 'Content-Type': 'application/json' }
     )
 
-    @standard_paged_response_2 = MockResponse.new(
+    @standard_paged_response2 = Net::HTTPSuccess.new(
       '200',
       JSON.generate({
         stat: 'OK',
-        response: [ 'RESPONSE3', 'RESPONSE4' ],
+        response: %w[RESPONSE3 RESPONSE4],
         metadata: {
           total_objects: 4,
           prev_offset: 2
         }
       }),
-      {'Content-Type' => 'application/json'}
+      { 'Content-Type': 'application/json' }
     )
 
     @standard_paged_combined_results = {
       stat: 'OK',
-      response: [ 'RESPONSE1', 'RESPONSE2', 'RESPONSE3', 'RESPONSE4' ],
+      response: %w[RESPONSE1 RESPONSE2 RESPONSE3 RESPONSE4],
       metadata: {
         total_objects: 4,
         prev_offset: 2
       }
     }
 
-    @nonstandard_paged_response_1 = MockResponse.new(
+    @nonstandard_paged_response1 = Net::HTTPSuccess.new(
       '200',
       JSON.generate({
         stat: 'OK',
         response: {
-          items: [ 'RESPONSE1', 'RESPONSE2' ],
+          items: %w[RESPONSE1 RESPONSE2],
           metadata: {
-            next_offset: ['1738997429000', 'cb306faf-7f36-494d-9a0e-5697d93331f8']
+            next_offset: %w[1738997429000 cb306faf-7f36-494d-9a0e-5697d93331f8]
           }
         }
       }),
-      {'Content-Type' => 'application/json'}
+      { 'Content-Type': 'application/json' }
     )
 
-    @nonstandard_paged_response_2 = MockResponse.new(
+    @nonstandard_paged_response2 = Net::HTTPSuccess.new(
       '200',
       JSON.generate({
         stat: 'OK',
         response: {
-          items: [ 'RESPONSE3', 'RESPONSE4' ],
+          items: %w[RESPONSE3 RESPONSE4],
           metadata: {}
         }
       }),
-      {'Content-Type' => 'application/json'}
+      { 'Content-Type': 'application/json' }
     )
 
     @nonstandard_paged_combined_results = {
       stat: 'OK',
       response: {
-        items: [ 'RESPONSE1', 'RESPONSE2', 'RESPONSE3', 'RESPONSE4' ],
+        items: %w[RESPONSE1 RESPONSE2 RESPONSE3 RESPONSE4],
         metadata: {}
       }
     }
   end
 
-
   def test_get_all_standard_paged_ok
     @mock_http.expects(:request).twice.returns(
-      @standard_paged_response_1, @standard_paged_response_2)
+      @standard_paged_response1, @standard_paged_response2
+    )
     actual_response = @client.get_all('/fake')
     assert_equal(@standard_paged_combined_results, actual_response)
   end
 
   def test_get_all_nonstandard_paged_ok
     @mock_http.expects(:request).twice.returns(
-      @nonstandard_paged_response_1, @nonstandard_paged_response_2)
+      @nonstandard_paged_response1, @nonstandard_paged_response2
+    )
     actual_response = @client.get_all('/fake',
-                                      data_array_path: ['response', 'items'],
-                                      metadata_path: ['response', 'metadata'])
+                                      data_array_path: %w[response items],
+                                      metadata_path: %w[response metadata])
     assert_equal(@nonstandard_paged_combined_results, actual_response)
   end
 
   def test_get_all_bad_data_array_path
-    @mock_http.expects(:request).returns(@nonstandard_paged_response_1)
+    @mock_http.expects(:request).returns(@nonstandard_paged_response1)
     assert_raise_with_message(
       DuoApi::PaginationError,
-      'Object at data_array_path ["response"] is not an Array'){
-        @client.get_all('/fake', metadata_path: ['response', 'metadata'])}
+      'Object at data_array_path ["response"] is not an Array'
+    ){ @client.get_all('/fake', metadata_path: %w[response metadata]) }
   end
 end

@@ -1,19 +1,22 @@
+# frozen_string_literal: true
+
 require_relative 'client'
 require_relative 'helpers'
 
-
 class DuoApi
+  ##
+  # Duo Auth API (https://duo.com/docs/authapi)
+  #
   class Auth < DuoApi
-
-    def ping()
+    def ping
       get('/auth/v2/ping')[:response]
     end
 
-    def check()
+    def check
       get('/auth/v2/check')[:response]
     end
 
-    def logo()
+    def logo
       get_image('/auth/v2/logo')
     end
 
@@ -23,7 +26,7 @@ class DuoApi
     end
 
     def enroll_status(user_id:, activation_code:)
-      params = {user_id: user_id, activation_code: activation_code}
+      params = { user_id: user_id, activation_code: activation_code }
       post('/auth/v2/enroll_status', params)[:response]
     end
 
@@ -39,14 +42,13 @@ class DuoApi
       # optional_params: user_id, username, ipaddr, hostname, async
       #
       # Note: user_id or username must be provided
-      params = optional_params.merge({factor: factor})
+      params = optional_params.merge({ factor: factor })
       post('/auth/v2/auth', params)[:response]
     end
 
     def auth_status(txid:)
-      params = {txid: txid}
+      params = { txid: txid }
       get('/auth/v2/auth_status', params)[:response]
     end
-
   end
 end

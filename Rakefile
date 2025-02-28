@@ -1,8 +1,16 @@
-require 'rake/testtask'
+# frozen_string_literal: true
 
-Rake::TestTask.new do |t|
-  t.libs << 'test'
-end
+require 'rake/testtask'
+require 'rubocop/rake_task'
+
+task default: %i[test rubocop]
 
 desc 'Run tests'
-task :default => :test
+task :test do
+  Rake::TestTask.new{ |t| t.libs << 'test' }
+end
+
+desc 'Run rubocop'
+task :rubocop do
+  RuboCop::RakeTask.new
+end

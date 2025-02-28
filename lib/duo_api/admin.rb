@@ -1,10 +1,13 @@
+# frozen_string_literal: true
+
 require_relative 'client'
 require_relative 'helpers'
 
-
 class DuoApi
+  ##
+  # Duo Admin API (https://duo.com/docs/adminapi)
+  #
   class Admin < DuoApi
-
     ##
     # Users
     #
@@ -23,24 +26,24 @@ class DuoApi
       optional_params.tap do |p|
         p[:aliases] = serialized_aliases(p[:aliases]) if p[:aliases]
       end
-      params = optional_params.merge({username: username})
+      params = optional_params.merge({ username: username })
       post('/admin/v1/users', params)[:response]
     end
 
     def bulk_create_users(users:)
       # Each user hash in users array requires :username and has the same optional params
       # as create_user()
-      params = {users: json_serialized_array(users)}
+      params = { users: json_serialized_array(users) }
       post('/admin/v1/users/bulk_create', params)[:response]
     end
 
     def bulk_restore_users(user_id_list:)
-      params = {user_id_list: json_serialized_array(user_id_list)}
+      params = { user_id_list: json_serialized_array(user_id_list) }
       post('/admin/v1/users/bulk_restore', params)[:response]
     end
 
     def bulk_trash_users(user_id_list:)
-      params = {user_id_list: json_serialized_array(user_id_list)}
+      params = { user_id_list: json_serialized_array(user_id_list) }
       post('/admin/v1/users/bulk_send_to_trash', params)[:response]
     end
 
@@ -64,7 +67,7 @@ class DuoApi
 
     def enroll_user(username:, email:, **optional_params)
       # optional_params: valid_secs
-      params = optional_params.merge({username: username, email: email})
+      params = optional_params.merge({ username: username, email: email })
       post('/admin/v1/users/enroll', params)[:response]
     end
 
@@ -85,7 +88,7 @@ class DuoApi
     end
 
     def add_user_group(user_id:, group_id:)
-      params = {group_id: group_id}
+      params = { group_id: group_id }
       post("/admin/v1/users/#{user_id}/groups", params)[:response]
     end
 
@@ -98,7 +101,7 @@ class DuoApi
     end
 
     def add_user_phone(user_id:, phone_id:)
-      params = {phone_id: phone_id}
+      params = { phone_id: phone_id }
       post("/admin/v1/users/#{user_id}/phones", params)[:response]
     end
 
@@ -111,7 +114,7 @@ class DuoApi
     end
 
     def add_user_hardware_token(user_id:, token_id:)
-      params = {token_id: token_id}
+      params = { token_id: token_id }
       post("/admin/v1/users/#{user_id}/tokens", params)[:response]
     end
 
@@ -128,20 +131,19 @@ class DuoApi
     end
 
     def sync_user(username:, directory_key:)
-      params = {username: username}
+      params = { username: username }
       post("/admin/v1/users/directorysync/#{directory_key}/syncuser", params)[:response]
     end
 
     def send_verification_push(user_id:, phone_id:)
-      params = {phone_id: phone_id}
+      params = { phone_id: phone_id }
       post("/admin/v1/users/#{user_id}/send_verification_push", params)[:response]
     end
 
     def get_verification_push_response(user_id:, push_id:)
-      params = {push_id: push_id}
+      params = { push_id: push_id }
       get("/admin/v1/users/#{user_id}/verification_push_response", params)[:response]
     end
-
 
     ##
     # Bulk Operations
@@ -155,10 +157,9 @@ class DuoApi
       #   Delete User:     DELETE /admin/v1/users/[user_id]
       #   Add User Group:    POST /admin/v1/users/[user_id]/groups
       #   Remove User Group: POST /admin/v1/users/[user_id]/groups/[group_id]
-      params = {operations: json_serialized_array(operations)}
+      params = { operations: json_serialized_array(operations) }
       post('/admin/v1/bulk', params)[:response]
     end
-
 
     ##
     # Groups
@@ -170,7 +171,7 @@ class DuoApi
 
     def create_group(name:, **optional_params)
       # optional_params: desc, status
-      params = optional_params.merge({name: name})
+      params = optional_params.merge({ name: name })
       post('/admin/v1/groups', params)[:response]
     end
 
@@ -190,7 +191,6 @@ class DuoApi
     def delete_group(group_id:)
       delete("/admin/v1/groups/#{group_id}")[:response]
     end
-
 
     ##
     # Phones
@@ -237,7 +237,6 @@ class DuoApi
       post("/admin/v1/phones/#{phone_id}/send_sms_passcodes")[:response]
     end
 
-
     ##
     # Tokens
     #
@@ -248,7 +247,7 @@ class DuoApi
 
     def create_token(type:, serial:, **optional_params)
       # optional_params: secret, counter, private_id, aes_key
-      params = optional_params.merge({type: type, serial: serial})
+      params = optional_params.merge({ type: type, serial: serial })
       post('/admin/v1/tokens', params)[:response]
     end
 
@@ -257,7 +256,7 @@ class DuoApi
     end
 
     def resync_token(token_id:, code1:, code2:, code3:)
-      params = {code1: code1, code2: code2, code3: code3}
+      params = { code1: code1, code2: code2, code3: code3 }
       post("/admin/v1/tokens/#{token_id}/resync", params)[:response]
     end
 
@@ -265,11 +264,10 @@ class DuoApi
       delete("/admin/v1/tokens/#{token_id}")[:response]
     end
 
-
     ##
     # WebAuthn Credentials
     #
-    def get_webauthncredentials()
+    def get_webauthncredentials
       get_all('/admin/v1/webauthncredentials')[:response]
     end
 
@@ -281,11 +279,10 @@ class DuoApi
       delete("/admin/v1/webauthncredentials/#{webauthnkey}")[:response]
     end
 
-
     ##
     # Desktop Authenticators
     #
-    def get_desktop_authenticators()
+    def get_desktop_authenticators
       get_all('/admin/v1/desktop_authenticators')[:response]
     end
 
@@ -297,7 +294,7 @@ class DuoApi
       delete("/admin/v1/desktop_authenticators/#{dakey}")[:response]
     end
 
-    def get_shared_desktop_authenticators()
+    def get_shared_desktop_authenticators
       get_all('/admin/v1/desktop_authenticators/shared_device_auth')[:response]
     end
 
@@ -310,7 +307,8 @@ class DuoApi
       # optional_params: active, name
       params = optional_params.merge({
         group_id_list: group_id_list,
-        trusted_endpoint_integration_id_list: trusted_endpoint_integration_id_list})
+        trusted_endpoint_integration_id_list: trusted_endpoint_integration_id_list
+      })
       post('/admin/v1/desktop_authenticators/shared_device_auth', params)[:response]
     end
 
@@ -324,11 +322,10 @@ class DuoApi
       delete("/admin/v1/desktop_authenticators/shared_device_auth/#{shared_device_key}")[:response]
     end
 
-
     ##
     # Bypass Codes
     #
-    def get_bypass_codes()
+    def get_bypass_codes
       get_all('/admin/v1/bypass_codes')[:response]
     end
 
@@ -340,11 +337,10 @@ class DuoApi
       delete("/admin/v1/bypass_codes/#{bypass_code_id}")[:response]
     end
 
-
     ##
     # Integrations
     #
-    def get_integrations()
+    def get_integrations
       get_all('/admin/v3/integrations')[:response]
     end
 
@@ -357,7 +353,7 @@ class DuoApi
       #                  trusted_device_days, self_service_allowed, sso, username_normalization_policy
       #
       #      sso params: https://duo.com/docs/adminapi#sso-parameters
-      params = optional_params.merge({name: name, type: type})
+      params = optional_params.merge({ name: name, type: type })
       post('/admin/v3/integrations', params)[:response]
     end
 
@@ -402,19 +398,18 @@ class DuoApi
       post("/admin/v3/integrations/oidc/#{integration_key}/client_secret")[:response]
     end
 
-
     ##
     # Policies
     #
-    def get_policies_summary()
+    def get_policies_summary
       get('/admin/v2/policies/summary')[:response]
     end
 
-    def get_policies()
+    def get_policies
       get_all('/admin/v2/policies')[:response]
     end
 
-    def get_global_policy()
+    def get_global_policy
       get('/admin/v2/policies/global')[:response]
     end
 
@@ -423,32 +418,32 @@ class DuoApi
     end
 
     def calculate_policy(user_id:, integration_key:)
-      params = {user_id: user_id, integration_key: integration_key}
+      params = { user_id: user_id, integration_key: integration_key }
       get('/admin/v2/policies/calculate', params)[:response]
     end
 
     def copy_policy(policy_key:, **optional_params)
       # optional_params: new_policy_names_list
-      params = optional_params.merge({policy_key: policy_key})
+      params = optional_params.merge({ policy_key: policy_key })
       post('/admin/v2/policies/copy', params)[:response]
     end
 
     def create_policy(policy_name:, **optional_params)
       # optional_params: apply_to_apps, apply_to_groups_in_apps, sections
-      params = optional_params.merge({policy_name: policy_name})
+      params = optional_params.merge({ policy_name: policy_name })
       post('/admin/v2/policies', params)[:response]
     end
 
     def update_policies(policies_to_update:, policy_changes:)
       # parameter formatting: https://duo.com/docs/adminapi#update-policies
-      params = {policies_to_update: policies_to_update, policy_changes: policy_changes}
+      params = { policies_to_update: policies_to_update, policy_changes: policy_changes }
       put('/admin/v2/policies/update', params)[:response]
     end
 
     def update_policy(policy_key:, **optional_params)
       # optional_params: apply_to_apps, apply_to_groups_in_apps, sections,
       #                  policy_name, sections_to_delete
-      params = optional_params.merge({policy_key: policy_key})
+      params = optional_params.merge({ policy_key: policy_key })
       put("/admin/v2/policies/#{policy_key}", params)[:response]
     end
 
@@ -456,11 +451,10 @@ class DuoApi
       delete("/admin/v2/policies/#{policy_key}")[:response]
     end
 
-
     ##
     # Endpoints
     #
-    def get_endpoints()
+    def get_endpoints
       get_all('/admin/v1/endpoints')[:response]
     end
 
@@ -468,11 +462,10 @@ class DuoApi
       get("/admin/v1/endpoints/#{epkey}")[:response]
     end
 
-
     ##
     # Registered Devices
     #
-    def get_registered_devices()
+    def get_registered_devices
       get_all('/admin/v1/registered_devices')[:response]
     end
 
@@ -484,7 +477,7 @@ class DuoApi
       delete("/admin/v1/registered_devices/#{compkey}")[:response]
     end
 
-    def get_blocked_registered_devices()
+    def get_blocked_registered_devices
       get_all('/admin/v1/registered_devices/blocked')[:response]
     end
 
@@ -493,7 +486,7 @@ class DuoApi
     end
 
     def block_registered_devices(registered_device_key_list:)
-      params = {registered_device_key_list: registered_device_key_list}
+      params = { registered_device_key_list: registered_device_key_list }
       post('/admin/v1/registered_devices/blocked', params)[:response]
     end
 
@@ -502,7 +495,7 @@ class DuoApi
     end
 
     def unblock_registered_devices(registered_device_key_list:)
-      params = {registered_device_key_list: registered_device_key_list}
+      params = { registered_device_key_list: registered_device_key_list }
       delete('/admin/v1/registered_devices/blocked', params)[:response]
     end
 
@@ -510,31 +503,29 @@ class DuoApi
       delete("/admin/v1/registered_devices/blocked/#{compkey}")[:response]
     end
 
-
     ##
     # Passport
     #
-    def get_passport_config()
+    def get_passport_config
       get('/admin/v2/passport/config')[:response]
     end
 
     def update_passport_config(disabled_groups:, enabled_groups:, enabled_status:)
-      params = {disabled_groups: disabled_groups, enabled_groups: enabled_groups,
-                enabled_status: enabled_status}
+      params = { disabled_groups: disabled_groups, enabled_groups: enabled_groups,
+                 enabled_status: enabled_status }
       post('/admin/v2/passport/config', params)[:response]
     end
-
 
     ##
     # Administrators
     #
-    def get_admins()
+    def get_admins
       get_all('/admin/v1/admins')[:response]
     end
 
     def create_admin(email:, name:, **optional_params)
       # optional_params: phone, role, restricted_by_admin_units, send_email, token_id, valid_days
-      params = optional_params.merge({email: email, name: name})
+      params = optional_params.merge({ email: email, name: name })
       post('/admin/v1/admins', params)[:response]
     end
 
@@ -573,11 +564,11 @@ class DuoApi
 
     def create_new_admin_activation_link(email:, **optional_params)
       # optional_params: admin_name, admin_role, send_email, valid_days
-      params = optional_params.merge({email: email})
+      params = optional_params.merge({ email: email })
       post('/admin/v1/admins/activations', params)[:response]
     end
 
-    def get_new_admin_pending_activations()
+    def get_new_admin_pending_activations
       get_all('/admin/v1/admins/activations')[:response]
     end
 
@@ -586,11 +577,11 @@ class DuoApi
     end
 
     def sync_admin(directory_key:, email:)
-      params = {email: email}
+      params = { email: email }
       post("/admin/v1/admins/directorysync/#{directory_key}/syncadmin", params)[:response]
     end
 
-    def get_admin_password_mgmt_statuses()
+    def get_admin_password_mgmt_statuses
       get_all('/admin/v1/admins/password_mgmt')[:response]
     end
 
@@ -603,7 +594,7 @@ class DuoApi
       post("/admin/v1/admins/#{admin_id}/password_mgmt", optional_params)[:response]
     end
 
-    def get_admin_allowed_auth_factors()
+    def get_admin_allowed_auth_factors
       get('/admin/v1/admins/allowed_auth_methods')[:response]
     end
 
@@ -613,7 +604,6 @@ class DuoApi
       #                  yubikey_enabled
       post('/admin/v1/admins/allowed_auth_methods', optional_params)[:response]
     end
-
 
     ##
     # Administrative Units
@@ -629,8 +619,8 @@ class DuoApi
 
     def create_administrative_unit(name:, description:, restrict_by_groups:, **optional_params)
       # optional_params: restrict_by_integrations, admins, groups, integrations
-      params = optional_params.merge({name: name, description: description,
-                                      restrict_by_groups: restrict_by_groups})
+      params = optional_params.merge({ name: name, description: description,
+                                       restrict_by_groups: restrict_by_groups })
       post('/admin/v1/administrative_units', params)[:response]
     end
 
@@ -668,7 +658,6 @@ class DuoApi
       delete("/admin/v1/administrative_units/#{admin_unit_id}")[:response]
     end
 
-
     ##
     # Logs
     #
@@ -677,18 +666,18 @@ class DuoApi
       #                  groups, phone_numbers, reasons, results, tokens, sort
       #
       #       more info: https://duo.com/docs/adminapi#authentication-logs
-      params = optional_params.merge({mintime: mintime, maxtime: maxtime})
-      data_array_path = [:response, :authlogs]
-      metadata_path = [:response, :metadata]
+      params = optional_params.merge({ mintime: mintime, maxtime: maxtime })
+      data_array_path = %i[response authlogs]
+      metadata_path = %i[response metadata]
       get_all('/admin/v2/logs/authentication', params, data_array_path: data_array_path,
               metadata_path: metadata_path).dig(*data_array_path)
     end
 
     def get_activity_logs(mintime:, maxtime:, **optional_params)
       # optional_params: sort
-      params = optional_params.merge({mintime: mintime, maxtime: maxtime})
-      data_array_path = [:response, :items]
-      metadata_path = [:response, :metadata]
+      params = optional_params.merge({ mintime: mintime, maxtime: maxtime })
+      data_array_path = %i[response items]
+      metadata_path = %i[response metadata]
       get_all('/admin/v2/logs/activity', params, data_array_path: data_array_path,
               metadata_path: metadata_path).dig(*data_array_path)
     end
@@ -700,9 +689,9 @@ class DuoApi
 
     def get_telephony_logs(mintime:, maxtime:, **optional_params)
       # optional_params: sort
-      params = optional_params.merge({mintime: mintime, maxtime: maxtime})
-      data_array_path = [:response, :items]
-      metadata_path = [:response, :metadata]
+      params = optional_params.merge({ mintime: mintime, maxtime: maxtime })
+      data_array_path = %i[response items]
+      metadata_path = %i[response metadata]
       get_all('/admin/v2/logs/telephony', params, data_array_path: data_array_path,
               metadata_path: metadata_path).dig(*data_array_path)
     end
@@ -712,25 +701,23 @@ class DuoApi
       get('/admin/v1/logs/offline_enrollment', optional_params)[:response]
     end
 
-
     ##
     # Trust Monitor
     #
     def get_trust_monitor_events(mintime:, maxtime:, **optional_params)
       # optional_params: formatter, type
-      params = optional_params.merge({mintime: mintime, maxtime: maxtime})
-      params[:limit] = 200 if not params[:limit] or params[:limit].to_i > 200
-      data_array_path = [:response, :events]
-      metadata_path = [:response, :metadata]
+      params = optional_params.merge({ mintime: mintime, maxtime: maxtime })
+      params[:limit] = 200 if !params[:limit] || (params[:limit].to_i > 200)
+      data_array_path = %i[response events]
+      metadata_path = %i[response metadata]
       get_all('/admin/v1/trust_monitor/events', params, data_array_path: data_array_path,
               metadata_path: metadata_path).dig(*data_array_path)
     end
 
-
     ##
     # Settings
     #
-    def get_settings()
+    def get_settings
       get('/admin/v1/settings')[:response]
     end
 
@@ -749,26 +736,25 @@ class DuoApi
       post('/admin/v1/settings', optional_params)[:response]
     end
 
-    def get_logo()
+    def get_logo
       get_image('/admin/v1/logo')
     end
 
     def update_logo(logo:)
       # logo should be raw png data or base64 strict encoded raw png data
-      encoded_logo = is_base64?(logo) ? logo : Base64.strict_encode64(logo)
-      params = {logo: encoded_logo}
+      encoded_logo = base64?(logo) ? logo : Base64.strict_encode64(logo)
+      params = { logo: encoded_logo }
       post('/admin/v1/logo', params)[:response]
     end
 
-    def delete_logo()
+    def delete_logo
       delete('/admin/v1/logo')[:response]
     end
-
 
     ##
     # Custom Branding
     #
-    def get_custom_branding()
+    def get_custom_branding
       get('/admin/v1/branding')[:response]
     end
 
@@ -778,7 +764,7 @@ class DuoApi
       post('/admin/v1/branding', optional_params)[:response]
     end
 
-    def get_custom_branding_draft()
+    def get_custom_branding_draft
       get('/admin/v1/branding/draft')[:response]
     end
 
@@ -796,11 +782,11 @@ class DuoApi
       delete("/admin/v1/branding/draft/users/#{user_id}")[:response]
     end
 
-    def publish_custom_branding_draft()
+    def publish_custom_branding_draft
       post('/admin/v1/branding/draft/publish')[:response]
     end
 
-    def get_custom_branding_messaging()
+    def get_custom_branding_messaging
       get('/admin/v1/branding/custom_messaging')[:response]
     end
 
@@ -809,11 +795,10 @@ class DuoApi
       post('/admin/v1/branding/custom_messaging', optional_params)[:response]
     end
 
-
     ##
     # Account Info
     #
-    def get_account_info_summary()
+    def get_account_info_summary
       get('/admin/v1/info/summary')[:response]
     end
 
@@ -830,7 +815,6 @@ class DuoApi
       get('/admin/v1/info/user_authentication_attempts', optional_params)[:response]
     end
 
-
     private
 
     def json_serialized_array(value)
@@ -842,8 +826,7 @@ class DuoApi
     end
 
     def serialized_aliases(aliases)
-      aliases.map.with_index{|a,i| "alias#{i+1}=#{a}"}.join('&') if aliases.is_a?(Array)
+      aliases.map.with_index{ |a, i| "alias#{i + 1}=#{a}" }.join('&') if aliases.is_a?(Array)
     end
-
   end
 end

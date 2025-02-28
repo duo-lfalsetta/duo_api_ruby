@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'base64'
 require 'erb'
 require 'json'
@@ -6,25 +8,19 @@ require 'net/https'
 require 'time'
 require 'uri'
 
-
 ##
 # A Ruby implementation of the Duo API
 #
 class DuoApi
   attr_accessor :ca_file
-  attr_accessor :default_params
+  attr_reader :default_params
 
-  if Gem.loaded_specs['duo_api']
-    VERSION = Gem.loaded_specs['duo_api'].version
-  else
-    VERSION = '0.0.0'
-  end
+  VERSION = Gem.loaded_specs['duo_api'] ? Gem.loaded_specs['duo_api'].version : '0.0.0'
 
   # Constants for handling rate limit backoff
   MAX_BACKOFF_WAIT_SECS = 32
   INITIAL_BACKOFF_WAIT_SECS = 1
   BACKOFF_FACTOR = 2
-  RATE_LIMITED_RESP_CODE = '429'
 
   def initialize(ikey, skey, host, proxy = nil, ca_file: nil, default_params: {})
     @ikey = ikey
@@ -43,7 +39,7 @@ class DuoApi
       ]
     end
     @ca_file = ca_file ||
-      File.join(File.dirname(__FILE__), '..', '..', 'ca_certs.pem')
+               File.join(File.dirname(__FILE__), '..', '..', 'ca_certs.pem')
     @default_params = default_params.transform_keys(&:to_sym)
   end
 
@@ -72,7 +68,7 @@ class DuoApi
     current_date, signed = sign(method, uri.host, path, params, body, additional_headers)
 
     # Create the HTTP request object
-    request = Net::HTTP.const_get(method.capitalize).new uri.to_s
+    request = Net::HTTP.const_get(method.capitalize).new(uri.to_s)
     request.basic_auth(@ikey, signed)
     request['Date'] = current_date
     request['User-Agent'] = "duo_api_ruby/#{VERSION}"
@@ -90,38 +86,37 @@ class DuoApi
       verify_mode: OpenSSL::SSL::VERIFY_PEER
     ) do |http|
       wait_secs = INITIAL_BACKOFF_WAIT_SECS
-      while true do
+      loop do
         resp = http.request(request)
 
         # Check if the response is rate-limited and handle backoff
-        if resp.code != RATE_LIMITED_RESP_CODE or wait_secs > MAX_BACKOFF_WAIT_SECS
-          return resp
-        end
-        random_offset = rand()
+        return resp if !resp.is_a?(Net::HTTPTooManyRequests) || (wait_secs > MAX_BACKOFF_WAIT_SECS)
+
+        random_offset = rand
         sleep(wait_secs + random_offset)
         wait_secs *= BACKOFF_FACTOR
       end
     end
   end
 
-
   private
 
   # Encode a key-value pair for a URL
-  def encode_key_val(k, v)
-    key = ERB::Util.url_encode(k.to_s)
-    value = ERB::Util.url_encode(v.to_s)
-    key + '=' + value
+  def encode_key_val(key, val)
+    key = ERB::Util.url_encode(key.to_s)
+    value = ERB::Util.url_encode(val.to_s)
+    "#{key}=#{value}"
   end
 
   # Build a canonical parameter string
   def canon_params(params_hash = nil)
     return '' if params_hash.nil?
+
     params_hash.transform_keys(&:to_s).sort.map do |k, v|
       # When value an array, repeat key for each unique value in sorted array
       if v.is_a?(Array)
-        if v.count > 0
-          v.sort.uniq.map{|vn| encode_key_val(k, vn)}.join('&')
+        if v.count.positive?
+          v.sort.uniq.map{ |vn| encode_key_val(k, vn) }.join('&')
         else
           encode_key_val(k, '')
         end
@@ -134,14 +129,15 @@ class DuoApi
   # Generate a canonical JSON body
   def canon_json(params_hash = nil)
     return '' if params_hash.nil?
-    JSON.generate(Hash[params_hash.sort])
+
+    JSON.generate(params_hash.sort.to_h)
   end
 
   # Canonicalize additional headers for signing
   def canon_x_duo_headers(additional_headers)
     additional_headers ||= {}
 
-    if not additional_headers.select{|k,v| k.nil? or v.nil?}.empty?
+    unless additional_headers.none?{ |k, v| k.nil? || v.nil? }
       raise(HeaderError, 'Not allowed "nil" as a header name or value')
     end
 
@@ -164,23 +160,21 @@ class DuoApi
     header_name.downcase!
     raise(HeaderError, 'Not allowed "Null" character in header name') if header_name.include?("\x00")
     raise(HeaderError, 'Not allowed "Null" character in header value') if value.include?("\x00")
-    raise(HeaderError,
-          'Additional headers must start with \'X-Duo-\'') unless header_name.start_with?('x-duo-')
-    raise(HeaderError,
-          "Duplicate header passed, header=#{header_name}") if added_headers.include?(header_name)
+    raise(HeaderError, 'Additional headers must start with \'X-Duo-\'') unless header_name.start_with?('x-duo-')
+    raise(HeaderError, "Duplicate header passed, header=#{header_name}") if added_headers.include?(header_name)
   end
 
   # Construct the request URI
   def request_uri(path, params = nil)
-    u = 'https://' + @host + path
-    u += '?' + canon_params(params) unless params.nil?
+    u = "https://#{@host}#{path}"
+    u += "?#{canon_params(params)}" unless params.nil?
     URI.parse(u)
   end
 
   # Create a canonical string for signing requests
   def canonicalize(method, host, path, params, body = '', additional_headers = nil, options: {})
     # options[:date] being passed manually is specifically for tests
-    date = options[:date] || Time.now.rfc2822()
+    date = options[:date] || Time.now.rfc2822
     canon = [
       date,
       method.upcase,
@@ -208,4 +202,3 @@ class DuoApi
   class PaginationError < StandardError; end
   class ChildAccountError < StandardError; end
 end
-
